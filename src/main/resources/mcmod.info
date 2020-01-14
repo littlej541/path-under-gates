@@ -1,0 +1,12 @@
+[
+{
+  "modid": "${modid}",
+  "name": "${modname}",
+  "description": "Lets grass paths remain under fence gates.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "authorList": ["Cyberslas"],
+  "dependencies": []
+}
+]
