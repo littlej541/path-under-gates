@@ -8,7 +8,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemSpade;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -19,11 +18,10 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class EventHandler
-{
+public class EventHandler  {
     @SubscribeEvent
     public static void rightClickWithShovel(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getItemStack().getItem() instanceof ItemSpade) {
+        if (event.getItemStack().getItem().getToolClasses(event.getItemStack()).contains(("shovel"))) {
             EntityPlayer player = event.getEntityPlayer();
             EnumHand hand = event.getHand();
             BlockPos pos = event.getPos();

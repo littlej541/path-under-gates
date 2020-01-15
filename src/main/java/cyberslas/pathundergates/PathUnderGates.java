@@ -7,8 +7,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = PathUnderGates.MODID, name = PathUnderGates.NAME, version = PathUnderGates.VERSION)
-public class PathUnderGates
-{
+public class PathUnderGates {
     public static final String MODID = "@modid@";
     public static final String NAME = "@modname@";
     public static final String VERSION = "@version@";
@@ -22,8 +21,7 @@ public class PathUnderGates
     public static Logger logger;
 
     @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent e)
-    {
+    public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
 
         proxy.preInit(e);
