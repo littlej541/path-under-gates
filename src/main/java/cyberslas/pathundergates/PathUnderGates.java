@@ -19,7 +19,7 @@ public class PathUnderGates
     @Mod.Instance
     public static PathUnderGates instance;
 
-    private static Logger logger;
+    public static Logger logger;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e)
