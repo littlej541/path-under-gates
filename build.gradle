@@ -10,6 +10,8 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
+def core_archive_source_dir = 'cyberslas/pathundergates/asm'
+
 modname = "${modname}"
 modid = "${modid}"
 version = "${mc_version}-${mod_version}-${mod_build}"
@@ -39,6 +41,48 @@ minecraft {
     replace '@version@', project.version
 }
 
+reobf {
+    coreJar {
+        mappingType = 'SEARGE'
+    }
+}
+
+task coreJar(type: Jar) {
+    from(sourceSets.main.output) {
+        include core_archive_source_dir + '/*'
+    }
+
+    manifest {
+        attributes 'FMLCorePlugin': 'cyberslas.pathundergates.asm.EDFMLLoadingPlugin'
+    }
+
+    baseName = archivesBaseName + "-core"
+}
+
+jar {
+    manifest {
+        attributes 'ContainedDeps': 'META-INF/libraries/' + coreJar.archivePath.name
+    }
+    from(coreJar.archivePath.absolutePath) {
+        include coreJar.archivePath.name
+        into 'META-INF/libraries'
+    }
+
+    exclude core_archive_source_dir
+}
+
+task signCoreJar(type: SignJar, dependsOn: reobfCoreJar) {
+    onlyIf { // Skip the task if our secret data isn't available
+        project.hasProperty('keyStore')
+    }
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = coreJar.archivePath
+    outputFile = coreJar.archivePath
+}
+
 task signJar(type: SignJar, dependsOn: reobfJar) {
     onlyIf { // Skip the task if our secret data isn't available
         project.hasProperty('keyStore')
@@ -51,7 +95,7 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 
-build.dependsOn signJar
+build.dependsOn signJar, signCoreJar
 
 dependencies {
     // you may put jars on which you depend on in ./libs
