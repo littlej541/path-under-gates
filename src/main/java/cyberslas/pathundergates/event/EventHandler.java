@@ -73,7 +73,7 @@ public class EventHandler  {
     }
 
     @SubscribeEvent
-    public static void grassPathUpatedByNeighbor(BlockEvent.NeighborNotifyEvent event) {
+    public static void grassPathUpdatedByNeighbor(BlockEvent.NeighborNotifyEvent event) {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         Block block = world.getBlockState(event.getPos()).getBlock();
@@ -91,7 +91,7 @@ public class EventHandler  {
         }
 
         Iterator<BlockPos> iter = surrounding_block_pos.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             BlockPos current = iter.next();
             if (world.getBlockState(current).getBlock() instanceof BlockGrassPath && world.getBlockState(current.up()).getBlock() instanceof BlockFenceGate) {
                 iter.remove();
