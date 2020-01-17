@@ -23,7 +23,5 @@ public class PathUnderGates {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
-
-        proxy.preInit(e);
     }
 }

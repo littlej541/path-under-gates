@@ -18,7 +18,11 @@ public class GrassPathTransformer implements IClassTransformer {
 
     private final static String[] stringsItemSpade = {"ajn", "net/minecraft/item/ItemSpade"};
     private final static String[] stringsItemSpade_onItemUseName = {"a", "onItemUse"};
-    private final static String[] stringsItemSpade_onItemUseDesc = {"(Laed;Lamu;Let;Lub;Lfa;FFF)Lud;", "(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumHand;Lnet/minecraft/util/EnumFacing;FFF)Lnet/minecraft/util/EnumActionResult;"};//"(LEntityPlayer;LWorld;LBlockPos;LEnumHand;LEnumFacing;FFF)LEnumActionResult;";
+    private final static String[] stringsItemSpade_onItemUseDesc = {"(Laed;Lamu;Let;Lub;Lfa;FFF)Lud;", "(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumHand;Lnet/minecraft/util/EnumFacing;FFF)Lnet/minecraft/util/EnumActionResult;"};
+
+    private final static String[] stringsBlockGrassPath = {"arc", "net/minecraft/block/BlockGrassPath"};
+    private final static String[] stringsBlockGrassPath_updateBlockStateName = {"c", "updateBlockState"};
+    private final static String[] stringsBlockGrassPath_updateBlockStateDesc = {"(Lamu;Let;)V", "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"};
 
     private final static String[] stringsWorld = {"amu", "net/minecraft/world/World"};
     private final static String[] stringsWorld_getBlockStateName = {"o", "getBlockState"};
@@ -39,15 +43,26 @@ public class GrassPathTransformer implements IClassTransformer {
     private static final int UNOBFUSCATED = 1;
 
     @Override
-    public byte[] transform(String name, String transformedName, byte[] transformedClass) {
-        return transformedName.equals(classNameItemSpade) ? transform(transformedClass, !name.equals(transformedName)) : transformedClass;
+    public byte[] transform(String name, String transformedName, byte[] classToTransform) {
+        byte[] transformedClass;
+
+        switch(transformedName) {
+            case classNameItemSpade:
+                transformedClass = transformItemSpade(classToTransform, !transformedName.equals(classNameItemSpade) ? OBFUSCATED : UNOBFUSCATED);
+                break;
+            case classNameBlockGrassPath:
+                transformedClass = transformBlockGrassPath(classToTransform, !transformedName.equals(classNameBlockGrassPath) ? OBFUSCATED : UNOBFUSCATED);
+                break;
+            default:
+                return classToTransform;
+        }
+
+        return transformedClass;
     }
 
-    private byte[] transform(byte[] transformedClass, boolean obfuscated) {
-        int obfuscation = obfuscated ? OBFUSCATED : UNOBFUSCATED;
-
+    private byte[] transformItemSpade(byte[] classToTransform, int obfuscation) {
         ClassNode cn = new ClassNode();
-        ClassReader cr = new ClassReader(transformedClass);
+        ClassReader cr = new ClassReader(classToTransform);
         cr.accept(cn, 0);
 
         for(MethodNode method : cn.methods) {
@@ -65,7 +80,7 @@ public class GrassPathTransformer implements IClassTransformer {
                  * Equivalent to changing:
                  * if (facing != EnumFacing.DOWN && worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR && block == Blocks.GRASS)
                  * to:
-                 * if (facing != EnumFacing.DOWN && (worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR || worldIn.getBlockState(pos.up()).getBlock instanceof BlockFenceGate) && block == Blocks.GRASS)
+                 * if (facing != EnumFacing.DOWN && (worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR || worldIn.getBlockState(pos.up()).getBlock() instanceof BlockFenceGate) && block == Blocks.GRASS)
                  * in
                  * {@link net.minecraft.item.ItemSpade#onItemUse(EntityPlayer, World, BlockPos, EnumHand, EnumFacing, float, float, float)}
                  **/
@@ -87,6 +102,53 @@ public class GrassPathTransformer implements IClassTransformer {
                 method.instructions.insertBefore(targetNode.getPrevious(), toInject);
 
                 method.instructions.remove(targetNode.getPrevious());
+
+                break;
+            }
+        }
+
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        cn.accept(cw);
+        return cw.toByteArray();
+    }
+
+    private byte[] transformBlockGrassPath(byte[] classToTransform, int obfuscation) {
+        ClassNode cn = new ClassNode();
+        ClassReader cr = new ClassReader(classToTransform);
+        cr.accept(cn, 0);
+
+        for(MethodNode method : cn.methods) {
+            if (method.name.equals(stringsBlockGrassPath_updateBlockStateName[obfuscation]) && method.desc.equals(stringsBlockGrassPath_updateBlockStateDesc[obfuscation])) {
+                AbstractInsnNode targetNode = null;
+
+                for(AbstractInsnNode instruction : method.instructions.toArray()) {
+                    if (instruction.getOpcode() == IFEQ) {
+                        targetNode = instruction;
+                        break;
+                    }
+                }
+
+                /**
+                 * Equivalent to changing:
+                 * if (worldIn.getBlockState(pos.up()).getMaterial().isSolid())
+                 * to:
+                 * if (worldIn.getBlockState(pos.up()).getMaterial().isSolid() && worldIn.getBlockState(pos.up()).getBlock() instanceof BlockFenceGate != true)
+                 * in
+                 * {@link net.minecraft.block.BlockGrassPath#updateBlockState(World, BlockPos)}
+                 **/
+
+                LabelNode exitLabel = ((JumpInsnNode) targetNode).label;
+
+                InsnList toInject = new InsnList();
+                toInject.add(new VarInsnNode(ALOAD, 1));
+                toInject.add(new VarInsnNode(ALOAD, 2));
+                toInject.add(new MethodInsnNode(INVOKEVIRTUAL, stringsBlockPos[obfuscation], stringsBlockPos_upName[obfuscation], stringsBlockPos_upDesc[obfuscation], false));
+                toInject.add(new MethodInsnNode(INVOKEVIRTUAL, stringsWorld[obfuscation], stringsWorld_getBlockStateName[obfuscation], stringsWorld_getBlockStateDesc[obfuscation], false));
+                toInject.add(new MethodInsnNode(INVOKEINTERFACE, stringsIBlockState[obfuscation], stringsIBlockState_getBlockName[obfuscation], stringsIBlockState_getBlockDesc[obfuscation], true));
+                toInject.add(new TypeInsnNode(INSTANCEOF, stringsBlockFenceGate[obfuscation]));
+                toInject.add(new JumpInsnNode(IFNE, exitLabel));
+
+                method.instructions.insert(targetNode, toInject);
 
                 break;
             }
