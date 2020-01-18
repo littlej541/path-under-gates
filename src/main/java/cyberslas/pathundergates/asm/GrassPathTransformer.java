@@ -21,7 +21,7 @@ public class GrassPathTransformer implements IClassTransformer {
     private final static String[] stringsItemSpade_onItemUseDesc = {"(Laed;Lamu;Let;Lub;Lfa;FFF)Lud;", "(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumHand;Lnet/minecraft/util/EnumFacing;FFF)Lnet/minecraft/util/EnumActionResult;"};
 
     private final static String[] stringsBlockGrassPath = {"arc", "net/minecraft/block/BlockGrassPath"};
-    private final static String[] stringsBlockGrassPath_updateBlockStateName = {"c", "updateBlockState"};
+    private final static String[] stringsBlockGrassPath_updateBlockStateName = {"b", "updateBlockState"};
     private final static String[] stringsBlockGrassPath_updateBlockStateDesc = {"(Lamu;Let;)V", "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"};
 
     private final static String[] stringsWorld = {"amu", "net/minecraft/world/World"};
@@ -48,10 +48,10 @@ public class GrassPathTransformer implements IClassTransformer {
 
         switch(transformedName) {
             case classNameItemSpade:
-                transformedClass = transformItemSpade(classToTransform, !transformedName.equals(classNameItemSpade) ? OBFUSCATED : UNOBFUSCATED);
+                transformedClass = transformItemSpade(classToTransform, !transformedName.equals(name) ? OBFUSCATED : UNOBFUSCATED);
                 break;
             case classNameBlockGrassPath:
-                transformedClass = transformBlockGrassPath(classToTransform, !transformedName.equals(classNameBlockGrassPath) ? OBFUSCATED : UNOBFUSCATED);
+                transformedClass = transformBlockGrassPath(classToTransform, !transformedName.equals(name) ? OBFUSCATED : UNOBFUSCATED);
                 break;
             default:
                 return classToTransform;
