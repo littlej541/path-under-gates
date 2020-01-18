@@ -7,7 +7,7 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.12.2")
 @IFMLLoadingPlugin.TransformerExclusions({"cyberslas.pathundergates.asm"})
-public class EDFMLLoadingPlugin implements IFMLLoadingPlugin {
+public class PUGFMLLoadingPlugin implements IFMLLoadingPlugin {
     public static final String MODID = "@modid@-core";
     public static final String VERSION = "@version@";
 
