@@ -22,6 +22,7 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -58,7 +59,7 @@ public class EventHandler  {
                         try {
                             GrassPathBlockStateUpdateHandler.handleBlockStateUpdate(worldIn, pos, iblockstate1, 11);
                         } catch(Exception e) {
-                            PathUnderGates.logger.error(e.getStackTrace());
+                            PathUnderGates.logger.error("Grass path block update failed!", e);
                             worldIn.setBlockState(pos, iblockstate1, 11);
                         }
                         itemstack.damageItem(1, player);
@@ -116,9 +117,12 @@ public class EventHandler  {
         }
 
         private static class WorldBlockStateHandler {
+            private static Field worldInfoField = null;
+
             private static boolean setBlockState(World world, BlockPos pos, IBlockState newState, int flags) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-                Field worldInfoField = World.class.getDeclaredField("worldInfo");
-                worldInfoField.setAccessible(true);
+                if (worldInfoField == null) {
+                    worldInfoField = ObfuscationReflectionHelper.findField(World.class, "field_72986_A");
+                }
                 WorldInfo worldInfo = (WorldInfo) worldInfoField.get(world);
 
                 if (world.isOutsideBuildHeight(pos)) {
@@ -170,27 +174,41 @@ public class EventHandler  {
         }
 
         private static class ChunkBlockStateHandler {
+            private static Method propagateSkylightOcclusionMethod = null;
+            private static Method relightBlockMethod = null;
+            private static Field dirtyField = null;
+            private static Field precipitationHeightMapField = null;
+            private static Field heightMapField = null;
+            private static Field storageArraysField = null;
+
             @Nullable
             private static IBlockState setBlockState(World world, Chunk chunk, BlockPos pos, IBlockState state) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-                Method propagateSkylightOcclusionMethod = Chunk.class.getDeclaredMethod("propagateSkylightOcclusion", int.class, int.class);
-                Method relightBlockMethod = Chunk.class.getDeclaredMethod("relightBlock", int.class, int.class, int.class);
-                propagateSkylightOcclusionMethod.setAccessible((true));
-                relightBlockMethod.setAccessible((true));
+                if (propagateSkylightOcclusionMethod == null) {
+                    propagateSkylightOcclusionMethod = ObfuscationReflectionHelper.findMethod(Chunk.class, "func_76595_e", void.class, int.class, int.class);
+                }
 
-                Field chunkDirtyField = Chunk.class.getDeclaredField("dirty");
-                chunkDirtyField.setAccessible(true);
+                if (relightBlockMethod == null) {
+                    relightBlockMethod = ObfuscationReflectionHelper.findMethod(Chunk.class, "func_76615_h", void.class, int.class, int.class, int.class);
+                }
 
-                Field chunkPrecipitationHeightMapField = Chunk.class.getDeclaredField("precipitationHeightMap");
-                chunkPrecipitationHeightMapField.setAccessible(true);
-                int[] precipitationHeightMap = (int[]) chunkPrecipitationHeightMapField.get(chunk);
+                if (dirtyField == null) {
+                    dirtyField = ObfuscationReflectionHelper.findField(Chunk.class, "field_76643_l");
+                }
 
-                Field chunkHeightMapField = Chunk.class.getDeclaredField("heightMap");
-                chunkHeightMapField.setAccessible(true);
-                int[] heightMap = (int[]) chunkHeightMapField.get(chunk);
+                if (precipitationHeightMapField == null) {
+                    precipitationHeightMapField = ObfuscationReflectionHelper.findField(Chunk.class, "field_76638_b");
+                }
+                int[] precipitationHeightMap = (int[]) precipitationHeightMapField.get(chunk);
 
-                Field chunkStorageArraysField = Chunk.class.getDeclaredField("storageArrays");
-                chunkStorageArraysField.setAccessible(true);
-                ExtendedBlockStorage[] storageArrays = (ExtendedBlockStorage[]) chunkStorageArraysField.get(chunk);
+                if (heightMapField == null) {
+                    heightMapField = ObfuscationReflectionHelper.findField(Chunk.class, "field_76634_f");
+                }
+                int[] heightMap = (int[]) heightMapField.get(chunk);
+
+                if (storageArraysField == null) {
+                    storageArraysField = ObfuscationReflectionHelper.findField(Chunk.class, "field_76652_q");
+                }
+                ExtendedBlockStorage[] storageArrays = (ExtendedBlockStorage[]) storageArraysField.get(chunk);
 
                 int i = pos.getX() & 15;
                 int j = pos.getY();
@@ -274,10 +292,10 @@ public class EventHandler  {
                             }
                         }
 
-                        chunkDirtyField.setBoolean(chunk, true);
-                        chunkHeightMapField.set(chunk, (int[]) heightMap);
-                        chunkPrecipitationHeightMapField.set(chunk, (int[]) precipitationHeightMap);
-                        chunkStorageArraysField.set(chunk, (ExtendedBlockStorage[]) storageArrays);
+                        dirtyField.setBoolean(chunk, true);
+                        heightMapField.set(chunk, (int[]) heightMap);
+                        precipitationHeightMapField.set(chunk, (int[]) precipitationHeightMap);
+                        storageArraysField.set(chunk, (ExtendedBlockStorage[]) storageArrays);
 
                         return iblockstate;
                     }
