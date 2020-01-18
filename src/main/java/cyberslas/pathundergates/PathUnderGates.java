@@ -18,7 +18,9 @@ public class PathUnderGates extends DummyModContainer {
             mcmodMeta = MetadataCollection.from(getClass().getResourceAsStream("/mcmod.info"),"mcmod.info").getMetadataForId("@modid@", null);
         } catch(Exception e) {
             logger.error("mcmod.info parsing error", e);
-            mcmodMeta.modId = "BADLOAD"; //prevent null pointer exception
+            mcmodMeta.modId = "BADLOAD";
+            mcmodMeta.name = "BADLOAD";
+            mcmodMeta.version = "BADLOAD";
         }
 
         copyMetadata(meta, mcmodMeta);
