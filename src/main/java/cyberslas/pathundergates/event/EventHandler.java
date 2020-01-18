@@ -78,35 +78,36 @@ public class EventHandler  {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
         Block block = world.getBlockState(event.getPos()).getBlock();
-        ArrayList<BlockPos> surrounding_block_pos = new ArrayList<BlockPos>(Arrays.asList(
-                pos.west(),
-                pos.east(),
-                pos.down(),
-                pos.up(),
-                pos.north(),
-                pos.south()
-        ));
 
         if (world.getBlockState(pos.down()).getBlock() instanceof BlockGrassPath && block instanceof BlockFenceGate) {
             event.setCanceled(true);
-        }
+        } else {
+            ArrayList<BlockPos> surrounding_block_pos = new ArrayList<BlockPos>(Arrays.asList(
+                    pos.west(),
+                    pos.east(),
+                    pos.down(),
+                    pos.up(),
+                    pos.north(),
+                    pos.south()
+            ));
 
-        Iterator<BlockPos> iter = surrounding_block_pos.iterator();
-        while (iter.hasNext()) {
-            BlockPos current = iter.next();
-            if (world.getBlockState(current).getBlock() instanceof BlockGrassPath && world.getBlockState(current.up()).getBlock() instanceof BlockFenceGate) {
-                iter.remove();
-                event.setCanceled(true);
+            Iterator<BlockPos> iter = surrounding_block_pos.iterator();
+            while (iter.hasNext()) {
+                BlockPos current = iter.next();
+                if (world.getBlockState(current).getBlock() instanceof BlockGrassPath && world.getBlockState(current.up()).getBlock() instanceof BlockFenceGate) {
+                    iter.remove();
+                    event.setCanceled(true);
+                }
             }
-        }
 
-        if (event.isCanceled()) {
-            for (BlockPos current : surrounding_block_pos) {
-                world.neighborChanged(current, block, pos);
-            }
+            if (event.isCanceled()) {
+                for (BlockPos current : surrounding_block_pos) {
+                    world.neighborChanged(current, block, pos);
+                }
 
-            if (event.getForceRedstoneUpdate()) {
-                world.updateObservingBlocksAt(pos, block);
+                if (event.getForceRedstoneUpdate()) {
+                    world.updateObservingBlocksAt(pos, block);
+                }
             }
         }
     }
