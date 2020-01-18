@@ -39,6 +39,12 @@ minecraft {
     replace '@version@', project.version
 }
 
+reobf {
+    jar {
+        mappingType = 'SEARGE'
+    }
+}
+
 task signJar(type: SignJar, dependsOn: reobfJar) {
     onlyIf { // Skip the task if our secret data isn't available
         project.hasProperty('keyStore')
