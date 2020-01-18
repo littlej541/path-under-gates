@@ -1,16 +1,14 @@
 package cyberslas.pathundergates.asm;
 
+import cyberslas.pathundergates.PathUnderGates;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion("1.12.2")
+@IFMLLoadingPlugin.MCVersion("@mcversion@")
 @IFMLLoadingPlugin.TransformerExclusions({"cyberslas.pathundergates.asm"})
 public class PUGFMLLoadingPlugin implements IFMLLoadingPlugin {
-    public static final String MODID = "@modid@-core";
-    public static final String VERSION = "@version@";
-
     @Override
     public String[] getASMTransformerClass() {
         return new String[]{GrassPathTransformer.class.getName()};
@@ -18,7 +16,7 @@ public class PUGFMLLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return null;
+        return PathUnderGates.class.getName();
     }
 
     @Nullable
