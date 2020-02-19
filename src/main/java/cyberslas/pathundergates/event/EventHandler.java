@@ -23,7 +23,6 @@ import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
@@ -45,9 +44,7 @@ public class EventHandler  {
 
             ItemStack itemstack = event.getItemStack();
 
-            if (!player.canPlayerEdit(pos.offset(facing), facing, itemstack)) {
-                event.setUseItem(Event.Result.DENY);
-            } else {
+            if (player.canPlayerEdit(pos.offset(facing), facing, itemstack)) {
                 IBlockState iblockstate = worldIn.getBlockState(pos);
                 Block block = iblockstate.getBlock();
 
@@ -64,10 +61,6 @@ public class EventHandler  {
                         }
                         itemstack.damageItem(1, player);
                     }
-
-                    event.setCanceled(true);
-                } else {
-                    event.setUseItem(Event.Result.DENY);
                 }
             }
         }
