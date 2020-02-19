@@ -23,6 +23,7 @@ import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
@@ -34,7 +35,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public class EventHandler  {
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void rightClickWithShovel(PlayerInteractEvent.RightClickBlock event) {
         if (event.getItemStack().getItem().getToolClasses(event.getItemStack()).contains(("shovel"))) {
             EntityPlayer player = event.getEntityPlayer();
