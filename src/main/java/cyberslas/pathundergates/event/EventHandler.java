@@ -1,6 +1,7 @@
 package cyberslas.pathundergates.event;
 
 import cyberslas.pathundergates.PathUnderGates;
+import cyberslas.pathundergates.block.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockGrassPath;
@@ -68,6 +69,23 @@ public class EventHandler  {
     }
 
     @SubscribeEvent
+    public static void grassPathBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        World worldIn = event.getWorld();
+        BlockPos pos = event.getPos();
+
+        if ((worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR || worldIn.getBlockState(pos.up()).getBlock() instanceof BlockFenceGate) && event.getPlacedBlock().getBlock() == Blocks.GRASS_PATH) {
+            IBlockState iblockstate = ModBlocks.TEMP_GRASS_PATH.getDefaultState();
+
+            try {
+                GrassPathBlockStateUpdateHandler.handleBlockStateUpdate(worldIn, pos, iblockstate, 11);
+            } catch(Exception e) {
+                PathUnderGates.logger.error("Grass path block update failed!", e);
+                worldIn.setBlockState(pos, iblockstate, 11);
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void grassPathUpdatedByNeighbor(BlockEvent.NeighborNotifyEvent event) {
         World world = event.getWorld();
         BlockPos pos = event.getPos();
@@ -106,8 +124,8 @@ public class EventHandler  {
         }
     }
 
-    private static class GrassPathBlockStateUpdateHandler {
-        private static void handleBlockStateUpdate(World worldIn, BlockPos pos, IBlockState iblockstate1, int flags) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public static class GrassPathBlockStateUpdateHandler {
+        public static void handleBlockStateUpdate(World worldIn, BlockPos pos, IBlockState iblockstate1, int flags) throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
             WorldBlockStateHandler.setBlockState(worldIn, pos, iblockstate1, flags);
         }
 
