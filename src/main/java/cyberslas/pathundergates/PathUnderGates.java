@@ -1,6 +1,7 @@
 package cyberslas.pathundergates;
 
 import cyberslas.pathundergates.proxy.ServerProxy;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -23,6 +24,8 @@ public class PathUnderGates {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
         logger = e.getModLog();
+
+        MinecraftForge.EVENT_BUS.register(PUGConfig.class);
 
         proxy.preInit(e);
     }

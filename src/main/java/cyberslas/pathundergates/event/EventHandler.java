@@ -1,11 +1,13 @@
 package cyberslas.pathundergates.event;
 
+import cyberslas.pathundergates.PUGConfig;
 import cyberslas.pathundergates.PathUnderGates;
 import cyberslas.pathundergates.block.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockGrassPath;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -13,6 +15,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
@@ -31,9 +34,8 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EventHandler  {
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -47,10 +49,7 @@ public class EventHandler  {
             ItemStack itemstack = event.getItemStack();
 
             if (player.canPlayerEdit(pos.offset(facing), facing, itemstack)) {
-                IBlockState iblockstate = worldIn.getBlockState(pos);
-                Block block = iblockstate.getBlock();
-
-                if (facing != EnumFacing.DOWN && (worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR || worldIn.getBlockState(pos.up()).getBlock() instanceof BlockFenceGate) && block == Blocks.GRASS) {
+                if (facing != EnumFacing.DOWN && blockAllowsPathBelow(worldIn, pos.up()) && worldIn.getBlockState(pos).getBlock() == Blocks.GRASS) {
                     IBlockState iblockstate1 = Blocks.GRASS_PATH.getDefaultState();
                     worldIn.playSound(player, pos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
 
@@ -73,7 +72,7 @@ public class EventHandler  {
         World worldIn = event.getWorld();
         BlockPos pos = event.getPos();
 
-        if ((worldIn.getBlockState(pos.up()).getMaterial() == Material.AIR || worldIn.getBlockState(pos.up()).getBlock() instanceof BlockFenceGate) && event.getPlacedBlock().getBlock() == Blocks.GRASS_PATH) {
+        if (blockAllowsPathBelow(worldIn, pos.up()) && event.getPlacedBlock().getBlock() == Blocks.GRASS_PATH) {
             IBlockState iblockstate = ModBlocks.TEMP_GRASS_PATH.getDefaultState();
 
             try {
@@ -91,7 +90,7 @@ public class EventHandler  {
         BlockPos pos = event.getPos();
         Block block = world.getBlockState(event.getPos()).getBlock();
 
-        if (world.getBlockState(pos.down()).getBlock() instanceof BlockGrassPath && block instanceof BlockFenceGate) {
+        if (world.getBlockState(pos.down()).getBlock() instanceof BlockGrassPath && blockAllowsPathBelow(world, pos)) {
             event.setCanceled(true);
         } else {
             ArrayList<BlockPos> surrounding_block_pos = new ArrayList<BlockPos>(Arrays.asList(
@@ -106,7 +105,8 @@ public class EventHandler  {
             Iterator<BlockPos> iter = surrounding_block_pos.iterator();
             while (iter.hasNext()) {
                 BlockPos current = iter.next();
-                if (world.getBlockState(current).getBlock() instanceof BlockGrassPath && world.getBlockState(current.up()).getBlock() instanceof BlockFenceGate) {
+
+                if (world.getBlockState(current).getBlock() instanceof BlockGrassPath && blockAllowsPathBelow(world, current.up())) {
                     iter.remove();
                     event.setCanceled(true);
                 }
@@ -122,6 +122,50 @@ public class EventHandler  {
                 }
             }
         }
+    }
+
+    public static boolean blockAllowsPathBelow(World worldIn, BlockPos pos) {
+        return !matchesBlockBlacklist(worldIn, pos) && (worldIn.getBlockState(pos).getMaterial() == Material.AIR || worldIn.getBlockState(pos).getBlock() instanceof BlockFenceGate || matchesBlockWhitelist(worldIn, pos));
+    }
+
+    public static boolean matchesBlockWhitelist(World worldIn, BlockPos pos) {
+        return matchesBlockList(worldIn, pos, PUGConfig.blocksWhitelist);
+    }
+
+    public static boolean matchesBlockBlacklist(World worldIn, BlockPos pos) {
+        return matchesBlockList(worldIn, pos, PUGConfig.blocksBlacklist);
+    }
+
+    private static boolean matchesBlockList(World worldIn, BlockPos pos, String[] list) {
+        ResourceLocation blockRegistryName = worldIn.getBlockState(pos).getBlock().getRegistryName();
+
+        for(String listRegistryName : list) {
+            String[] splitString = listRegistryName.split(":");
+            if (splitString.length == 2) {
+                if (blockRegistryName.toString().equals(listRegistryName) || (blockRegistryName.getResourceDomain().equals(splitString[0]) && splitString[1].equals("*"))) {
+                    return true;
+                }
+            } else if (splitString.length == 3) {
+                if (blockRegistryName.toString().equals(String.join(":", splitString[0], splitString[1]))) {
+                    HashMap<String, String> propertyMap = Arrays.asList(splitString[2].split(",")).stream().map(input -> input.split("=")).collect(Collectors.toMap(k -> ((String[])k)[0], v -> ((String[])v)[1], (a, b) -> a, HashMap::new));
+                    IBlockState iblockstate = worldIn.getBlockState(pos);
+
+                    for(IProperty<?> blockstatePropertyMapKey : iblockstate.getProperties().keySet()) {
+                        if (propertyMap.containsKey(blockstatePropertyMapKey.getName())) {
+                            if (propertyMap.get(blockstatePropertyMapKey.getName()).equals(iblockstate.getValue(blockstatePropertyMapKey).toString())) {
+                                continue;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static class GrassPathBlockStateUpdateHandler {
