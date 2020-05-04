@@ -160,8 +160,7 @@ public class EventHandler  {
                     } else if (Integer.parseInt(splitString[2]) == OreDictionary.WILDCARD_VALUE) {
                         return true;
                     } else {
-                        Block block = Block.REGISTRY.getObject(new ResourceLocation(splitString[0], splitString[1]));
-                        for(Map.Entry<IProperty<?>, Comparable<?>> entry : block.getStateFromMeta(Integer.parseInt(splitString[2])).getProperties().entrySet()) {
+                        for(Map.Entry<IProperty<?>, Comparable<?>> entry : Block.REGISTRY.getObject(new ResourceLocation(splitString[0], splitString[1])).getStateFromMeta(Integer.parseInt(splitString[2])).getProperties().entrySet()) {
                             propertyMap.put(entry.getKey().getName(), entry.getValue().toString());
                         }
                     }
