@@ -142,28 +142,44 @@ public class EventHandler  {
 
         for(String listRegistryName : list) {
             String[] splitString = listRegistryName.split(":");
+
             if (splitString.length == 2) {
                 if (splitString[0].equals("ore")) {
-                    return matchesBlockList(worldIn, pos, OreDictionary.getOres(splitString[1]).stream().map(input -> input.getItem().getRegistryName().toString()).toArray(String[]::new));
+                    boolean foundMatch = matchesBlockList(worldIn, pos, OreDictionary.getOres(splitString[1]).stream().map(input -> input.getItem().getRegistryName().toString().concat(":").concat(String.valueOf(input.getMetadata()))).toArray(String[]::new));
+                    if (foundMatch) {
+                        return true;
+                    }
                 } else if (blockRegistryName.toString().equals(listRegistryName) || (blockRegistryName.getResourceDomain().equals(splitString[0]) && splitString[1].equals("*"))) {
                     return true;
                 }
             } else if (splitString.length == 3) {
                 if (blockRegistryName.toString().equals(String.join(":", splitString[0], splitString[1]))) {
-                    HashMap<String, String> propertyMap = Arrays.asList(splitString[2].split(",")).stream().map(input -> input.split("=")).collect(Collectors.toMap(k -> ((String[])k)[0], v -> ((String[])v)[1], (a, b) -> a, HashMap::new));
+                    HashMap<String, String> propertyMap = new HashMap<>();
+                    if (splitString[2].contains("=")) {
+                        propertyMap = Arrays.asList(splitString[2].split(",")).stream().map(input -> input.split("=")).collect(Collectors.toMap(k -> ((String[]) k)[0], v -> ((String[]) v)[1], (a, b) -> a, HashMap::new));
+                    } else if (Integer.parseInt(splitString[2]) == OreDictionary.WILDCARD_VALUE) {
+                        return true;
+                    } else {
+                        Block block = Block.REGISTRY.getObject(new ResourceLocation(splitString[0], splitString[1]));
+                        for(Map.Entry<IProperty<?>, Comparable<?>> entry : block.getStateFromMeta(Integer.parseInt(splitString[2])).getProperties().entrySet()) {
+                            propertyMap.put(entry.getKey().getName(), entry.getValue().toString());
+                        }
+                    }
                     IBlockState iblockstate = worldIn.getBlockState(pos);
 
+                    boolean blocksMatch = true;
                     for(IProperty<?> blockstatePropertyMapKey : iblockstate.getProperties().keySet()) {
                         if (propertyMap.containsKey(blockstatePropertyMapKey.getName())) {
-                            if (propertyMap.get(blockstatePropertyMapKey.getName()).equals(iblockstate.getValue(blockstatePropertyMapKey).toString())) {
-                                continue;
-                            } else {
-                                return false;
+                            if (!propertyMap.get(blockstatePropertyMapKey.getName()).equals(iblockstate.getValue(blockstatePropertyMapKey).toString())) {
+                                blocksMatch = false;
+                                break;
                             }
                         }
                     }
 
-                    return true;
+                    if (blocksMatch) {
+                        return true;
+                    }
                 }
             }
         }
