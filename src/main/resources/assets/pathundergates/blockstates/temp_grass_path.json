@@ -1,0 +1,10 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "minecraft:grass_path"
+	},
+	"variants": {
+		"normal": [{}],
+		"inventory": [{}]
+	}
+}
