@@ -29,6 +29,7 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -142,7 +143,9 @@ public class EventHandler  {
         for(String listRegistryName : list) {
             String[] splitString = listRegistryName.split(":");
             if (splitString.length == 2) {
-                if (blockRegistryName.toString().equals(listRegistryName) || (blockRegistryName.getResourceDomain().equals(splitString[0]) && splitString[1].equals("*"))) {
+                if (splitString[0].equals("ore")) {
+                    return matchesBlockList(worldIn, pos, OreDictionary.getOres(splitString[1]).stream().map(input -> input.getItem().getRegistryName().toString()).toArray(String[]::new));
+                } else if (blockRegistryName.toString().equals(listRegistryName) || (blockRegistryName.getResourceDomain().equals(splitString[0]) && splitString[1].equals("*"))) {
                     return true;
                 }
             } else if (splitString.length == 3) {
