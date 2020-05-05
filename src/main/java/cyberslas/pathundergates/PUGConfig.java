@@ -20,6 +20,7 @@ public class PUGConfig {
     public static void onConfigChanged(OnConfigChangedEvent event) {
         if (event.getModID().equals(PathUnderGates.MODID)) {
             ConfigManager.sync(PathUnderGates.MODID, Config.Type.INSTANCE);
+            MappedBlocklists.processListsIntoMaps();
         }
     }
 }

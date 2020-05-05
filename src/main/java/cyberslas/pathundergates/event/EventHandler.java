@@ -1,6 +1,7 @@
 package cyberslas.pathundergates.event;
 
-import cyberslas.pathundergates.PUGConfig;
+import com.google.common.collect.Multimap;
+import cyberslas.pathundergates.MappedBlocklists;
 import cyberslas.pathundergates.PathUnderGates;
 import cyberslas.pathundergates.block.ModBlocks;
 import net.minecraft.block.Block;
@@ -29,7 +30,6 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -94,7 +94,7 @@ public class EventHandler  {
         if (world.getBlockState(pos.down()).getBlock() instanceof BlockGrassPath && blockAllowsPathBelow(world, pos)) {
             event.setCanceled(true);
         } else {
-            ArrayList<BlockPos> surrounding_block_pos = new ArrayList<BlockPos>(Arrays.asList(
+            List<BlockPos> surrounding_block_pos = new ArrayList<BlockPos>(Arrays.asList(
                     pos.west(),
                     pos.east(),
                     pos.down(),
@@ -130,55 +130,39 @@ public class EventHandler  {
     }
 
     public static boolean matchesBlockWhitelist(World worldIn, BlockPos pos) {
-        return matchesBlockList(worldIn, pos, PUGConfig.blocksWhitelist);
+        return matchesBlockMap(worldIn, pos, MappedBlocklists.whitelistMap);
     }
 
     public static boolean matchesBlockBlacklist(World worldIn, BlockPos pos) {
-        return matchesBlockList(worldIn, pos, PUGConfig.blocksBlacklist);
+        return matchesBlockMap(worldIn, pos, MappedBlocklists.backlistMap);
     }
 
-    private static boolean matchesBlockList(World worldIn, BlockPos pos, String[] list) {
-        ResourceLocation blockRegistryName = worldIn.getBlockState(pos).getBlock().getRegistryName();
+    private static boolean matchesBlockMap(World worldIn, BlockPos pos, Multimap<ResourceLocation, List<String>> map) {
+        IBlockState iBlockState = worldIn.getBlockState(pos);
+        ResourceLocation blockRegistryName = iBlockState.getBlock().getRegistryName();
 
-        for(String listRegistryName : list) {
-            String[] splitString = listRegistryName.split(":");
+        ResourceLocation key = map.containsKey(blockRegistryName) ? blockRegistryName : map.containsKey(new ResourceLocation(blockRegistryName.getResourceDomain(), MappedBlocklists.WILDCARD)) ? new ResourceLocation(blockRegistryName.getResourceDomain(),MappedBlocklists.WILDCARD) : MappedBlocklists.DUMMYMAPKEY;
 
-            if (splitString.length == 2) {
-                if (splitString[0].equals("ore")) {
-                    boolean foundMatch = matchesBlockList(worldIn, pos, OreDictionary.getOres(splitString[1]).stream().map(input -> input.getItem().getRegistryName().toString().concat(":").concat(String.valueOf(input.getMetadata()))).toArray(String[]::new));
-                    if (foundMatch) {
-                        return true;
-                    }
-                } else if (blockRegistryName.toString().equals(listRegistryName) || (blockRegistryName.getResourceDomain().equals(splitString[0]) && splitString[1].equals("*"))) {
+        for (List<String> propertyList : map.get(key)) {
+            if (!propertyList.get(0).contains(MappedBlocklists.PROPERTYKEYVALUESEPARATOR)) {
+                if (propertyList.get(0).equals(MappedBlocklists.WILDCARD) || propertyList.get(0).equals(String.valueOf(iBlockState.getBlock().getMetaFromState(iBlockState)))) {
                     return true;
                 }
-            } else if (splitString.length == 3) {
-                if (blockRegistryName.toString().equals(String.join(":", splitString[0], splitString[1]))) {
-                    HashMap<String, String> propertyMap = new HashMap<>();
-                    if (splitString[2].contains("=")) {
-                        propertyMap = Arrays.asList(splitString[2].split(",")).stream().map(input -> input.split("=")).collect(Collectors.toMap(k -> ((String[]) k)[0], v -> ((String[]) v)[1], (a, b) -> a, HashMap::new));
-                    } else if (Integer.parseInt(splitString[2]) == OreDictionary.WILDCARD_VALUE) {
-                        return true;
-                    } else {
-                        for(Map.Entry<IProperty<?>, Comparable<?>> entry : Block.REGISTRY.getObject(new ResourceLocation(splitString[0], splitString[1])).getStateFromMeta(Integer.parseInt(splitString[2])).getProperties().entrySet()) {
-                            propertyMap.put(entry.getKey().getName(), entry.getValue().toString());
+            } else {
+                boolean blocksMatch = true;
+                Map<String, String> propertyMap = propertyList.stream().map(input -> input.split(MappedBlocklists.PROPERTYKEYVALUESEPARATOR)).collect(Collectors.toMap(v -> v[0], v -> v[1]));
+
+                for (Map.Entry<IProperty<?>, Comparable<?>> blockStateProperty : iBlockState.getProperties().entrySet()) {
+                    if (propertyMap.containsKey(blockStateProperty.getKey().getName())) {
+                        if (!propertyMap.get(blockStateProperty.getKey().getName()).equals(blockStateProperty.getValue().toString())) {
+                            blocksMatch = false;
+                            break;
                         }
                     }
-                    IBlockState iblockstate = worldIn.getBlockState(pos);
+                }
 
-                    boolean blocksMatch = true;
-                    for(IProperty<?> blockstatePropertyMapKey : iblockstate.getProperties().keySet()) {
-                        if (propertyMap.containsKey(blockstatePropertyMapKey.getName())) {
-                            if (!propertyMap.get(blockstatePropertyMapKey.getName()).equals(iblockstate.getValue(blockstatePropertyMapKey).toString())) {
-                                blocksMatch = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (blocksMatch) {
-                        return true;
-                    }
+                if (blocksMatch) {
+                    return true;
                 }
             }
         }
