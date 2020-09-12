@@ -1,35 +1,27 @@
 package cyberslas.pathundergates;
 
-import cyberslas.pathundergates.proxy.ServerProxy;
+import cyberslas.pathundergates.block.ModBlocks;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = PathUnderGates.MODID, name = PathUnderGates.NAME, version = PathUnderGates.VERSION)
+@Mod(PathUnderGates.MODID)
 public class PathUnderGates {
     public static final String MODID = "pathundergates";
-    public static final String NAME = "@modname@";
-    public static final String VERSION = "@version@";
 
-    @SidedProxy(clientSide = "cyberslas.pathundergates.proxy.ClientProxy", serverSide = "cyberslas.pathundergates.proxy.ServerProxy")
-    public static ServerProxy proxy;
+    public static Logger logger = LogManager.getLogger();
 
-    @Mod.Instance
-    public static PathUnderGates instance;
+    public PathUnderGates() {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PUGConfig.CONFIG_SPEC);
 
-    public static Logger logger;
-
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent e) {
-        logger = e.getModLog();
-
-        proxy.preInit(e);
+        new ModBlocks();
     }
 
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent e) {
-        MappedBlocklists.processListsIntoMaps();
+    private void setup(final FMLCommonSetupEvent e) {
     }
 }

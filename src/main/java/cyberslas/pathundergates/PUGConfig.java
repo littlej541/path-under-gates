@@ -1,26 +1,33 @@
 package cyberslas.pathundergates;
 
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.Config.Comment;
-import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.common.Mod;
 
-@Config(modid = PathUnderGates.MODID)
+import java.util.ArrayList;
+import java.util.List;
+
+@Mod.EventBusSubscriber(modid = PathUnderGates.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class PUGConfig {
-    @Comment({"A list of blocks that allow paths under them. Format: modid:name:propertyname1=propertyvalue1,propertyname2=propertyvalue2,...",
-            "Examples: minecraft:glass, minecraft:*, minecraft:stone:variant=granite, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top"})
-    public static String[] blocksWhitelist = {};
+    public static final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+    public static final Config CONFIG = new Config(builder);
+    public static final ForgeConfigSpec CONFIG_SPEC = new ForgeConfigSpec.Builder().build();
 
-    @Comment({"A list of blocks that disallow paths under them. Format: modid:name:propertyname1=propertyvalue1,propertyname2=propertyvalue2,...",
-            "Examples: minecraft:glass, minecraft:*, minecraft:stone:variant=granite, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top"})
-    public static String[] blocksBlacklist = {};
+    public static class Config {
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocksWhitelist;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocksBlacklist;
 
-    @SubscribeEvent
-    public static void onConfigChanged(OnConfigChangedEvent event) {
-        if (event.getModID().equals(PathUnderGates.MODID)) {
-            ConfigManager.sync(PathUnderGates.MODID, Config.Type.INSTANCE);
-            MappedBlocklists.processListsIntoMaps();
+        public Config(ForgeConfigSpec.Builder builder) {
+            blocksWhitelist = builder
+                    .comment("A list of blocks that allow paths under them. Format: modid:name:propertyname1=propertyvalue1,propertyname2=propertyvalue2,...",
+                            "Examples: minecraft:glass, minecraft:*, minecraft:stone:variant=granite, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top")
+                    .translation(PathUnderGates.MODID + ".config.blocksWhitelist")
+                    .defineList("blocksWhitelist", new ArrayList<String>(), __ -> true);
+
+            blocksBlacklist = builder
+                    .comment("A list of blocks that disallow paths under them. Format: modid:name:propertyname1=propertyvalue1,propertyname2=propertyvalue2,...",
+                            "Examples: minecraft:glass, minecraft:*, minecraft:stone:variant=granite, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top")
+                    .translation(PathUnderGates.MODID + ".config.blocksBlacklist")
+                    .defineList("blocksBlacklist", new ArrayList<String>(), __ -> true);
         }
     }
 }
