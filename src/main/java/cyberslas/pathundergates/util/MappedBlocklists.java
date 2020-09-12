@@ -52,8 +52,12 @@ public class MappedBlocklists {
 
                 domainsToCheck.stream().map(domain -> BlockTags.getCollection().get(new ResourceLocation(domain, splitRegistryName[1]))).filter(tag -> tag != null).forEach(tag -> blockSet.addAll(tag.getAllElements()));
 
-                for(Block block : blockSet) {
-                    multimap.put(new DomainNamePair(block.getRegistryName()), Arrays.asList(WILDCARD));
+                if (blockSet.size() > 0) {
+                    for (Block block : blockSet) {
+                        multimap.put(new DomainNamePair(block.getRegistryName()), Collections.singletonList(WILDCARD));
+                    }
+                } else {
+                    multimap.put(new DomainNamePair(splitRegistryName[0], splitRegistryName[1]), Collections.singletonList(WILDCARD));
                 }
             } else if (splitRegistryName.length == 3) {
                 DomainNamePair domainNamePair = new DomainNamePair(splitRegistryName[0], splitRegistryName[1]);
