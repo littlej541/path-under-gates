@@ -2,12 +2,10 @@ modLoader="javafml"
 loaderVersion="[31,)"
 issueTrackerURL="https://github.com/littlej541/path-under-gates/issues"
 [[mods]]
-	modId="${modid}"
-	version="${version}"
-	displayName="${modname}"
+	modId="pathundergates"
+	version="${file.jarVersion}"
+	displayName="Path Under Gates"
 	displayURL="https://www.curseforge.com/minecraft/mc-mods/path-under-gates"
 	logoFile="logo.png"
 	authors="Cyberslas"
-	description='''
-	Lets grass paths remain under fence gates.
-	'''
+	description='''Lets grass paths remain under fence gates.'''

@@ -33,10 +33,6 @@ minecraft {
     
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
-    //replace '@modname@', project.modname
-    //replace '@modid@', project.modid
-    //replace '@version@', project.version
-
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
