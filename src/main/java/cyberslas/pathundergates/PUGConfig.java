@@ -1,16 +1,14 @@
 package cyberslas.pathundergates;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = PathUnderGates.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class PUGConfig {
     public static final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
     public static final Config CONFIG = new Config(builder);
-    public static final ForgeConfigSpec CONFIG_SPEC = new ForgeConfigSpec.Builder().build();
+    public static final ForgeConfigSpec CONFIG_SPEC = builder.build();
 
     public static class Config {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocksWhitelist;
