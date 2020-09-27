@@ -20,6 +20,7 @@ public class MappedBlocklists {
     public static Multimap<DomainNamePair, List<String>> blacklistMap = HashMultimap.create();
 
     public static final String WILDCARD = "*";
+    public static final String TAGSTART = "#";
     public static final String OREDOMAIN = "ore";
     public static final List<String> DEFAULTTAGDOMAINS = Arrays.asList("minecraft", "forge");
     public static final String DOMAINSEPARATOR = ":";
@@ -37,6 +38,9 @@ public class MappedBlocklists {
 
         for(String registryName : list) {
             String[] splitRegistryName = registryName.split(DOMAINSEPARATOR);
+            if (splitRegistryName[0].startsWith(TAGSTART)) {
+                splitRegistryName[0] = splitRegistryName[0].substring(TAGSTART.length());
+            }
 
             if (splitRegistryName.length == 1) {
                 multimap.put(new DomainNamePair(splitRegistryName[0], WILDCARD), Collections.singletonList(WILDCARD));
