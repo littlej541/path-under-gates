@@ -6,7 +6,7 @@ import cyberslas.pathundergates.PUGConfig;
 import cyberslas.pathundergates.PathUnderGates;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.state.IProperty;
+import net.minecraft.state.Property;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -97,7 +97,7 @@ public class MappedBlocklists {
                 boolean blocksMatch = true;
                 Map<String, String> propertyMap = propertyList.stream().map(input -> input.split(MappedBlocklists.PROPERTYKEYVALUESEPARATOR)).collect(Collectors.toMap(v -> v[0], v -> v[1]));
 
-                for (IProperty<?> blockStateProperty : blockState.getProperties()) {
+                for (Property<?> blockStateProperty : blockState.getProperties()) {
                     if (propertyMap.containsKey(blockStateProperty.getName())) {
                         if (!propertyMap.get(blockStateProperty.getName()).equals(blockState.get(blockStateProperty).toString())) {
                             blocksMatch = false;
@@ -106,9 +106,7 @@ public class MappedBlocklists {
                     }
                 }
 
-                if (blocksMatch) {
-                    return true;
-                }
+                return blocksMatch;
             }
         }
 

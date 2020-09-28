@@ -13,7 +13,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.event.TagsUpdatedEvent;
@@ -51,7 +51,7 @@ public class EventHandler  {
                     if (!worldIn.isRemote) {
                         worldIn.setBlockState(pos, blockstate1, 11);
                         itemstack.damageItem(1, player, (p_220041_1_) -> {
-                            Vec3d playerLookVec = player.getLookVec();
+                            Vector3d playerLookVec = player.getLookVec();
                             p_220041_1_.sendBreakAnimation(new ItemUseContext(player, event.getHand(), new BlockRayTraceResult(player.getPositionVec(), Direction.getFacingFromVector(playerLookVec.x, playerLookVec.y, playerLookVec.z), new BlockPos(player.getPosX(), player.getPosY() + player.getStandingEyeHeight(player.getPose(), player.getSize(player.getPose())), player.getPosZ()), false)).getHand());
                         });
                     }
