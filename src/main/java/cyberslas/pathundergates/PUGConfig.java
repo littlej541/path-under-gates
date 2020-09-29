@@ -17,13 +17,13 @@ public class PUGConfig {
         public Config(ForgeConfigSpec.Builder builder) {
             blocksWhitelist = builder
                     .comment("A list of blocks that allow paths under them. Format: modid:name:propertyname1=propertyvalue1,propertyname2=propertyvalue2,...",
-                            "Examples: minecraft:glass, minecraft:*, minecraft:stone:variant=granite, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top")
+                            "Examples: ore:glass, minecraft:*, minecraft:stone, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top")
                     .translation(PathUnderGates.MODID + ".config.blocksWhitelist")
                     .defineList("blocksWhitelist", new ArrayList<String>(), __ -> true);
 
             blocksBlacklist = builder
                     .comment("A list of blocks that disallow paths under them. Format: modid:name:propertyname1=propertyvalue1,propertyname2=propertyvalue2,...",
-                            "Examples: minecraft:glass, minecraft:*, minecraft:stone:variant=granite, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top")
+                            "Examples: ore:glass, minecraft:*, minecraft:stone, minecraft:oak_stairs:facing=east, minecraft:oak_stairs:half=top, minecraft:oak_stairs:facing=east,half=top")
                     .translation(PathUnderGates.MODID + ".config.blocksBlacklist")
                     .defineList("blocksBlacklist", new ArrayList<String>(), __ -> true);
         }
