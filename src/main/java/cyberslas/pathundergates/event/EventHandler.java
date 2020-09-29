@@ -16,21 +16,19 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
-import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 @Mod.EventBusSubscriber(modid=PathUnderGates.MODID)
 public class EventHandler  {
     @SubscribeEvent
-    public static void tagsLoaded(TagsUpdatedEvent event) {
-        if (EffectiveSide.get().isServer()) {
-            MappedBlocklists.processListsIntoMaps();
-        }
+    public static void serverStarting(FMLServerStartingEvent event) {
+        MappedBlocklists.processListsIntoMaps();
     }
+
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void rightClickWithShovel(PlayerInteractEvent.RightClickBlock event) {
