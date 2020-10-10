@@ -1,6 +1,7 @@
 package cyberslas.pathundergates;
 
 import cyberslas.pathundergates.block.ModBlocks;
+import cyberslas.pathundergates.item.ModItems;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -20,6 +21,7 @@ public class PathUnderGates {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PUGConfig.CONFIG_SPEC);
 
         new ModBlocks();
+        new ModItems();
     }
 
     private void setup(final FMLCommonSetupEvent e) {
