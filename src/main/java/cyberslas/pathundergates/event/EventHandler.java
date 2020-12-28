@@ -2,9 +2,9 @@ package cyberslas.pathundergates.event;
 
 import cyberslas.pathundergates.util.MappedBlocklists;
 import cyberslas.pathundergates.PathUnderGates;
-import cyberslas.pathundergates.block.ModBlocks;
-import cyberslas.pathundergates.block.PUGGrassPathBlock;
-import net.minecraft.block.*;
+import cyberslas.pathundergates.util.Util;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
@@ -41,8 +41,8 @@ public class EventHandler  {
             ItemStack itemstack = event.getItemStack();
 
             if (player.canPlayerEdit(pos.offset(facing), facing, itemstack)) {
-                if (facing != Direction.DOWN && PUGGrassPathBlock.blockAllowsPathBelow(worldIn, pos.up()) && worldIn.getBlockState(pos).getBlock() == Blocks.GRASS_BLOCK) {
-                    BlockState blockstate1 = ModBlocks.PUG_GRASS_PATH.get().getDefaultState();
+                if (facing != Direction.DOWN && Util.blockAllowsPathBelow(worldIn, pos.up()) && worldIn.getBlockState(pos).getBlock() == Blocks.GRASS_BLOCK) {
+                    BlockState blockstate1 = Blocks.GRASS_PATH.getDefaultState();
                     worldIn.playSound(player, pos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
                     player.swingArm(event.getHand());
 
