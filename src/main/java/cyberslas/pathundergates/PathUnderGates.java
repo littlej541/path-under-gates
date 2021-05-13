@@ -1,6 +1,6 @@
 package cyberslas.pathundergates;
 
-import cyberslas.pathundergates.proxy.ServerProxy;
+import cyberslas.pathundergates.proxy.CommonProxy;
 import cyberslas.pathundergates.util.MappedBlocklists;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -15,7 +15,7 @@ public class PathUnderGates {
     public static final String VERSION = "@version@";
 
     @SidedProxy(clientSide = "cyberslas.pathundergates.proxy.ClientProxy", serverSide = "cyberslas.pathundergates.proxy.ServerProxy")
-    public static ServerProxy proxy;
+    public static CommonProxy proxy;
 
     @Mod.Instance
     public static PathUnderGates instance;
