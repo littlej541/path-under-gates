@@ -16,17 +16,17 @@ If modid is defined as `ore`, [vanilla](https://minecraft.gamepedia.com/Tag#Bloc
 When only modid and name are defined, tags will attempt to be matched against first. Failing that, the entry will try to be matched to a block instead.
 
 Example entries include:
-- `minecraft:*` - all blocks in the `minecraft` domain
-- `minecraft` - all blocks in the `minecraft` domain
-- `minecraft:stone` - matches `minecraft:stone`
-- `minecraft:jungle_log` - all `minecraft:jungle_log` varieties
-- `minecraft:jungle_log:*` - all `minecraft:jungle_log` varieties
-- `minecraft:jungle_log:axis=y` - all `minecraft:jungle_log` varieties with the property `axis=y`, other properties ignored
-- `minecraft:oak_stairs:facing=east` - all `minecraft:oak_stairs` varieties with the property `facing=east`, other properties ignored
-- `minecraft:oak_stairs:half=top` - all `minecraft:oak_stairs` varieties with the property `half=top`, other properties ignored
-- `minecraft:oak_stairs:facing=east,half=top` - all `minecraft:oak_stairs` varieties with the properties `facing=east` and `half=top`, other properties ignored
-- `ore:spruce_logs` - all blocks under the `spruce_logs` vanilla tag
-- `ore:fences/wooden` - all blocks under the `fences/wooden` Forge tag
-- `minecraft:logs` - all blocks under the `logs` vanilla tag (this is a tag, though it looks like a block)
+- `"minecraft:*"` - all blocks in the `minecraft` domain
+- `"minecraft"` - all blocks in the `minecraft` domain
+- `"minecraft:stone"` - matches `minecraft:stone`
+- `"minecraft:jungle_log"` - all `minecraft:jungle_log` varieties
+- `"minecraft:jungle_log:*"` - all `minecraft:jungle_log` varieties
+- `"minecraft:jungle_log:axis=x"` — all `minecraft:jungle_log` varieties with the property axis=x other properties ignored
+- `"minecraft:oak_stairs:facing=east"` - all `minecraft:oak_stairs` varieties with the property `facing=east`, other properties ignored
+- `"minecraft:oak_stairs:half=top"` - all `minecraft:oak_stairs` varieties with the property `half=top`, other properties ignored
+- `"minecraft:oak_stairs:facing=east,half=top"` - all `minecraft:oak_stairs` varieties with the properties `facing=east` and `half=top`, other properties ignored
+- `"ore:spruce_logs"` — all blocks under the `spruce_logs` vanilla tag
+- `"ore:fences/wooden"` — all blocks under the `fences/wooden` Forge tag
+- `"minecraft:logs"` — all blocks under the `logs` vanilla tag (this is a tag, though it looks like a block)
 
 **Final Note:** If you still need more help with blocks, see the [CraftTweaker](https://www.curseforge.com/minecraft/mc-mods/crafttweaker) wiki for version 1.12. The formatting is almost a one-to-one mapping of Bracket Handlers from that mod.
