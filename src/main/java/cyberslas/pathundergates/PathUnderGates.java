@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 @Mod(modid = PathUnderGates.MODID, name = PathUnderGates.NAME, version = PathUnderGates.VERSION)
 public class PathUnderGates {
-    public static final String MODID = "pathundergates";
+    public static final String MODID = "@modid@";
     public static final String NAME = "@modname@";
     public static final String VERSION = "@version@";
 

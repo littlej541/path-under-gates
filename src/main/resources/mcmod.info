@@ -1,12 +1,12 @@
 [
 {
-  "modid": "${modid}",
-  "name": "${modname}",
-  "description": "Lets grass paths remain under fence gates.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "authorList": ["Cyberslas"],
-  "dependencies": []
+  "modid": "@modid@",
+  "name": "@modname@",
+  "description": "@description@",
+  "version": "@version@",
+  "mcversion": "@mc_version@",
+  "url": "@url@",
+  "authorList": ["@authors@"],
+  "logoFile": "@logofile@"
 }
 ]
