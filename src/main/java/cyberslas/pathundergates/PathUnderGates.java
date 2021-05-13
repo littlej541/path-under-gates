@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = PathUnderGates.MODID, name = PathUnderGates.NAME, version = PathUnderGates.VERSION)
+@Mod(modid = PathUnderGates.MODID, name = PathUnderGates.NAME, version = PathUnderGates.VERSION, acceptableRemoteVersions="*")
 public class PathUnderGates {
     public static final String MODID = "@modid@";
     public static final String NAME = "@modname@";
