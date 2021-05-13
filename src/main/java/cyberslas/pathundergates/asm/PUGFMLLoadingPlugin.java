@@ -6,8 +6,6 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-@IFMLLoadingPlugin.MCVersion("@mcversion@")
-@IFMLLoadingPlugin.TransformerExclusions({"cyberslas.pathundergates.asm"})
 public class PUGFMLLoadingPlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
@@ -16,7 +14,7 @@ public class PUGFMLLoadingPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getModContainerClass() {
-        return PathUnderGates.class.getName();
+        return null;
     }
 
     @Nullable

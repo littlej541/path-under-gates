@@ -46,6 +46,8 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
+            jvmArgs "-Dfml.coreMods.load=${group}.asm.PUGFMLLoadingPlugin"
+
             mods {
                 modid {
                     source sourceSets.main
@@ -61,6 +63,8 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+
+            jvmArgs "-Dfml.coreMods.load=${group}.asm.PUGFMLLoadingPlugin"
 
             mods {
                 modid {
@@ -167,9 +171,9 @@ jar {
             "Implementation-Version": version,
             "Implementation-Vendor" : "${groupname}",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "FMLCorePlugin": "${groupname}.core.CoreMod",
+            "FMLCorePlugin": "${groupname}.asm.PUGFMLLoadingPlugin",
             "FMLCorePluginContainsFMLMod": "true",
-            "ForceLoadAsMod": "true",
+            "ForceLoadAsMod": "true"
         ])
     }
 }
