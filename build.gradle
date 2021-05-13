@@ -4,13 +4,11 @@ import org.apache.tools.ant.filters.ReplaceTokens
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public'}
         jcenter()
         mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -48,9 +46,6 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
-            arg "--mixin ${modid}.mixins.json".toString()
-            jvmArgs "-Dfml.coreMods.load=${group}.core.CoreMod", "-Dmixin.debug=true"
-
             mods {
                 modid {
                     source sourceSets.main
@@ -66,9 +61,6 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
-
-            arg "--mixin ${modid}.mixins.json".toString()
-            jvmArgs "-Dfml.coreMods.load=${group}.core.CoreMod", "-Dmixin.debug=true"
 
             mods {
                 modid {
@@ -97,12 +89,6 @@ minecraft {
     }
 }
 
-apply plugin: 'org.spongepowered.mixin'
-
-mixin {
-    add sourceSets.main, "${modid}.refmap.json"
-}
-
 task signJar(type: SignJar, dependsOn: jar) {
     onlyIf { // Skip the task if our secret data isn't available
         project.hasProperty('keyStore')
@@ -124,12 +110,6 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${forge_version_minecraft}-${forge_version_major}.${forge_version_minor}.${forge_version_patch}.${forge_version_build}"
-
-    compile('org.spongepowered:mixin:0.8.3-SNAPSHOT') {
-        exclude module: 'guava'
-        exclude module: 'commons-io'
-        exclude module: 'gson'
-    }
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
@@ -178,14 +158,6 @@ processResources {
 
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
-    from {
-        configurations.compile
-                .filter { "mixin-0.8.3-SNAPSHOT.jar" == it.name }
-                .collect { it.isDirectory() ? it : zipTree(it) }
-    } {
-        exclude "LICENSE.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
-    }
-
     manifest {
         attributes([
             "Specification-Title": "${modid}",
@@ -198,9 +170,6 @@ jar {
             "FMLCorePlugin": "${groupname}.core.CoreMod",
             "FMLCorePluginContainsFMLMod": "true",
             "ForceLoadAsMod": "true",
-            "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-            "TweakOrder": 0,
-            "MixinConfigs": "${modid}.mixins.json"
         ])
     }
 }
