@@ -20,7 +20,7 @@ modname = "${modname}"
 modid = "${modid}"
 version = "${mc_version}-${mod_version}-${mod_build}"
 
-group = "${group}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = "${groupname}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = modid
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -189,13 +189,13 @@ jar {
     manifest {
         attributes([
             "Specification-Title": "${modid}",
-            "Specification-Vendor": group,
+            "Specification-Vendor": "${groupname}",
             "Specification-Version": version,
             "Implementation-Title": "${modid}",
             "Implementation-Version": version,
-            "Implementation-Vendor" : group,
+            "Implementation-Vendor" : "${groupname}",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "FMLCorePlugin": "${group}.core.CoreMod",
+            "FMLCorePlugin": "${groupname}.core.CoreMod",
             "FMLCorePluginContainsFMLMod": "true",
             "ForceLoadAsMod": "true",
             "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
