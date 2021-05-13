@@ -34,6 +34,7 @@ public class EventHandler  {
                     player.swingArm(event.getHand());
 
                     if (!worldIn.isRemote) {
+                        worldIn.setBlockState(pos, iblockstate1, 11);
                         itemstack.damageItem(1, player);
                     }
                 }
