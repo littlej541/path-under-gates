@@ -152,9 +152,8 @@ processResources {
                 "modname": modname.toString(),
                 "modid": modid.toString(),
                 "authors": authors.toString(),
-                "logofile": logofile.toString(),
                 "url": url.toString(),
-                "description": description.toString(),
+                "description": mod_description.toString(),
                 "mc_version": mc_version.toString()
         ])
     }

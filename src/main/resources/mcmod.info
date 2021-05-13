@@ -2,11 +2,10 @@
 {
   "modid": "@modid@",
   "name": "@modname@",
-  "description": "@description@",
+  "description": "@mod_description@",
   "version": "@version@",
   "mcversion": "@mc_version@",
   "url": "@url@",
-  "authorList": ["@authors@"],
-  "logoFile": "@logofile@"
+  "authorList": ["@authors@"]
 }
 ]
