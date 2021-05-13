@@ -1,6 +1,7 @@
 package cyberslas.pathundergates;
 
 import cyberslas.pathundergates.proxy.ServerProxy;
+import cyberslas.pathundergates.util.MappedBlocklists;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

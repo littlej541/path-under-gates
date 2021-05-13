@@ -1,5 +1,6 @@
 package cyberslas.pathundergates;
 
+import cyberslas.pathundergates.util.MappedBlocklists;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.Comment;
 import net.minecraftforge.common.config.ConfigManager;

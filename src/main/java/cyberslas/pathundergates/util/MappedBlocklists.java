@@ -1,15 +1,19 @@
-package cyberslas.pathundergates;
+package cyberslas.pathundergates.util;
 
+import cyberslas.pathundergates.PathUnderGates;
+import cyberslas.pathundergates.PUGConfig;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MappedBlocklists {
     public static Multimap<ResourceLocation, List<String>> whitelistMap = HashMultimap.create();
@@ -60,5 +64,46 @@ public class MappedBlocklists {
         }
 
         return multimap;
+    }
+
+    public static boolean matchesBlockWhitelist(World worldIn, BlockPos pos) {
+        return matchesBlockMap(worldIn, pos, MappedBlocklists.whitelistMap);
+    }
+
+    public static boolean matchesBlockBlacklist(World worldIn, BlockPos pos) {
+        return matchesBlockMap(worldIn, pos, MappedBlocklists.backlistMap);
+    }
+
+    private static boolean matchesBlockMap(World worldIn, BlockPos pos, Multimap<ResourceLocation, List<String>> map) {
+        IBlockState iBlockState = worldIn.getBlockState(pos);
+        ResourceLocation blockRegistryName = iBlockState.getBlock().getRegistryName();
+
+        ResourceLocation key = map.containsKey(blockRegistryName) ? blockRegistryName : map.containsKey(new ResourceLocation(blockRegistryName.getResourceDomain(), MappedBlocklists.WILDCARD)) ? new ResourceLocation(blockRegistryName.getResourceDomain(), MappedBlocklists.WILDCARD) : MappedBlocklists.DUMMYMAPKEY;
+
+        for (List<String> propertyList : map.get(key)) {
+            if (!propertyList.get(0).contains(MappedBlocklists.PROPERTYKEYVALUESEPARATOR)) {
+                if (propertyList.get(0).equals(MappedBlocklists.WILDCARD) || propertyList.get(0).equals(String.valueOf(iBlockState.getBlock().getMetaFromState(iBlockState)))) {
+                    return true;
+                }
+            } else {
+                boolean blocksMatch = true;
+                Map<String, String> propertyMap = propertyList.stream().map(input -> input.split(MappedBlocklists.PROPERTYKEYVALUESEPARATOR)).collect(Collectors.toMap(v -> v[0], v -> v[1]));
+
+                for (Map.Entry<IProperty<?>, Comparable<?>> blockStateProperty : iBlockState.getProperties().entrySet()) {
+                    if (propertyMap.containsKey(blockStateProperty.getKey().getName())) {
+                        if (!propertyMap.get(blockStateProperty.getKey().getName()).equals(blockStateProperty.getValue().toString())) {
+                            blocksMatch = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (blocksMatch) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
