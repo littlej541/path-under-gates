@@ -155,7 +155,9 @@ task processSources(type: Copy) {
     from 'src/main/java'
     into "$buildDir/java"
     filter(ReplaceTokens, tokens: [
-            "modid": modid.toString()
+            "modid": modid.toString(),
+            "modname": modname.toString(),
+            "version": version.toString()
     ])
 }
 
