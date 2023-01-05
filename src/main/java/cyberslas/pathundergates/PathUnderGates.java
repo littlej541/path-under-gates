@@ -1,5 +1,10 @@
 package cyberslas.pathundergates;
 
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;

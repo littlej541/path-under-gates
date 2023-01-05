@@ -3,54 +3,52 @@ package cyberslas.pathundergates.event;
 import cyberslas.pathundergates.util.MappedBlocklists;
 import cyberslas.pathundergates.PathUnderGates;
 import cyberslas.pathundergates.util.Util;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ToolActions;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 @Mod.EventBusSubscriber(modid=PathUnderGates.MODID)
 public class EventHandler  {
     @SubscribeEvent
-    public static void serverStarting(FMLServerStartingEvent event) {
+    public static void serverStarting(ServerStartingEvent event) {
         MappedBlocklists.processListsIntoMaps();
     }
 
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void rightClickWithShovel(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getItemStack().getItem().getToolTypes(event.getItemStack()).contains(ToolType.SHOVEL)) {
-            PlayerEntity player = event.getPlayer();
-            BlockPos pos = event.getPos();
-            Direction facing = event.getFace();
-            World worldIn = event.getWorld();
+    public static void makePath(BlockEvent.BlockToolModificationEvent event) {
+        if (event.getToolAction().equals(ToolActions.SHOVEL_FLATTEN) && !event.isSimulated()) {
+            Player player = event.getPlayer();
+            BlockPos blockpos = event.getPos();
+            UseOnContext context = event.getContext();
+            Direction clickedFace = context.getClickedFace();
+            Level level = context.getLevel();
+            InteractionHand hand = context.getHand();
+            ItemStack itemstack = event.getHeldItemStack();
 
-            ItemStack itemstack = event.getItemStack();
+            BlockState blockstate = level.getBlockState(blockpos);
+            BlockState blockstate1 = blockstate.getBlock().getToolModifiedState(blockstate, context, net.minecraftforge.common.ToolActions.SHOVEL_FLATTEN, true);
+            if (blockstate1 != null && clickedFace != Direction.DOWN && Util.blockAllowsPathBelow(level, blockpos.above())) {
+                level.playSound(player, blockpos, SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
+                player.swing(hand);
 
-            if (player.canPlayerEdit(pos.offset(facing), facing, itemstack)) {
-                if (facing != Direction.DOWN && Util.blockAllowsPathBelow(worldIn, pos.up()) && worldIn.getBlockState(pos).getBlock() == Blocks.GRASS_BLOCK) {
-                    BlockState blockstate1 = Blocks.GRASS_PATH.getDefaultState();
-                    worldIn.playSound(player, pos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                    player.swingArm(event.getHand());
-
-                    if (!worldIn.isRemote) {
-                        worldIn.setBlockState(pos, blockstate1, 11);
-                        itemstack.damageItem(1, player, (p_220041_1_) -> {
-                            Vector3d playerLookVec = player.getLookVec();
-                            p_220041_1_.sendBreakAnimation(new ItemUseContext(player, event.getHand(), new BlockRayTraceResult(player.getPositionVec(), Direction.getFacingFromVector(playerLookVec.x, playerLookVec.y, playerLookVec.z), new BlockPos(player.getPosX(), player.getPosY() + player.getStandingEyeHeight(player.getPose(), player.getSize(player.getPose())), player.getPosZ()), false)).getHand());
+                if (!level.isClientSide) {
+                    level.setBlock(blockpos, blockstate1, 11);
+                    if (player != null) {
+                        itemstack.hurtAndBreak(1, player, (p_43122_) -> {
+                            p_43122_.broadcastBreakEvent(hand);
                         });
                     }
                 }

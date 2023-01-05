@@ -1,7 +1,8 @@
 modLoader="javafml"
-loaderVersion="[@forge_version_major@,)"
+loaderVersion="[@forge_version_short@,)"
 license="@license@"
 issueTrackerURL="@issues@"
+
 [[mods]]
 	modId="@modid@"
 	version="@version@"
@@ -9,18 +10,18 @@ issueTrackerURL="@issues@"
 	displayURL="@url@"
 	logoFile="@logofile@"
 	authors="@authors@"
-	description='''@description@'''
+	description='''@mod_description@'''
 
-#[[dependencies.@modid@]]
-#    modId="forge"
-#    mandatory=true
-#    versionRange="[@forge_version_major@,]"
-#    ordering="NONE"
-#    side="BOTH"
-#
-#[[dependencies.@modid@]]
-#    modId="minecraft"
-#    mandatory=true
-#    versionRange="[@mc_version@]"
-#    ordering="NONE"
-#    side="BOTH"
+[[dependencies.@modid@]]
+    modId="forge"
+    mandatory=true
+    versionRange="[@forge_version_short@,]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.@modid@]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[@mc_version@]"
+    ordering="NONE"
+    side="BOTH"

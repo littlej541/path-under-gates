@@ -1,12 +1,12 @@
 package cyberslas.pathundergates.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FenceGateBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
 
 public class Util {
-    public static boolean blockAllowsPathBelow(IWorldReader worldIn, BlockPos pos) {
+    public static boolean blockAllowsPathBelow(LevelReader worldIn, BlockPos pos) {
         BlockState blockstate = worldIn.getBlockState(pos);
         return !MappedBlocklists.matchesBlockBlacklist(worldIn, pos) && (!blockstate.getMaterial().isSolid() || blockstate.getBlock() instanceof FenceGateBlock || MappedBlocklists.matchesBlockWhitelist(worldIn, pos));
     }

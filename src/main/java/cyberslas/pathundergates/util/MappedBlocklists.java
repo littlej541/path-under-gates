@@ -4,13 +4,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import cyberslas.pathundergates.PUGConfig;
 import cyberslas.pathundergates.PathUnderGates;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.Property;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class MappedBlocklists {
                     domainsToCheck = Arrays.asList(splitRegistryName[0]);
                 }
 
-                domainsToCheck.stream().map(domain -> BlockTags.getCollection().get(new ResourceLocation(domain, splitRegistryName[1]))).filter(tag -> tag != null).forEach(tag -> blockSet.addAll(tag.getAllElements()));
+                domainsToCheck.stream().map(domain -> ForgeRegistries.BLOCKS.tags().getTag(BlockTags.create(new ResourceLocation(domain, splitRegistryName[1])))).filter(tag -> tag != null).forEach(tag -> blockSet.addAll(tag.stream().toList()));
 
                 if (blockSet.size() > 0) {
                     for (Block block : blockSet) {
@@ -74,15 +75,15 @@ public class MappedBlocklists {
         return multimap;
     }
 
-    public static boolean matchesBlockWhitelist(IWorldReader worldIn, BlockPos pos) {
+    public static boolean matchesBlockWhitelist(LevelReader worldIn, BlockPos pos) {
         return matchesBlockMap(worldIn, pos, MappedBlocklists.whitelistMap);
     }
 
-    public static boolean matchesBlockBlacklist(IWorldReader worldIn, BlockPos pos) {
+    public static boolean matchesBlockBlacklist(LevelReader worldIn, BlockPos pos) {
         return matchesBlockMap(worldIn, pos, MappedBlocklists.blacklistMap);
     }
 
-    private static boolean matchesBlockMap(IWorldReader worldIn, BlockPos pos, Multimap<DomainNamePair, List<String>> map) {
+    private static boolean matchesBlockMap(LevelReader worldIn, BlockPos pos, Multimap<DomainNamePair, List<String>> map) {
         BlockState blockState = worldIn.getBlockState(pos);
         DomainNamePair blockDomainNamePair = new DomainNamePair(blockState.getBlock().getRegistryName());
 
@@ -99,7 +100,7 @@ public class MappedBlocklists {
 
                 for (Property<?> blockStateProperty : blockState.getProperties()) {
                     if (propertyMap.containsKey(blockStateProperty.getName())) {
-                        if (!propertyMap.get(blockStateProperty.getName()).equals(blockState.get(blockStateProperty).toString())) {
+                        if (!propertyMap.get(blockStateProperty.getName()).equals(blockState.getValue(blockStateProperty).toString())) {
                             blocksMatch = false;
                             break;
                         }
