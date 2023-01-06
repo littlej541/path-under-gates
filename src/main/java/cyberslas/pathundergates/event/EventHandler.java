@@ -24,7 +24,7 @@ import net.minecraftforge.fml.common.Mod;
 public class EventHandler  {
     @SubscribeEvent
     public static void serverStarting(ServerStartingEvent event) {
-        MappedBlocklists.processListsIntoMaps();
+        MappedBlocklists.parseConfig();
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

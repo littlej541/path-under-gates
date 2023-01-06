@@ -18,6 +18,6 @@ public class PathUnderGates {
     public static Logger logger = LogManager.getLogger();
 
     public PathUnderGates() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PUGConfig.CONFIG_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.CONFIG_SPEC);
     }
 }

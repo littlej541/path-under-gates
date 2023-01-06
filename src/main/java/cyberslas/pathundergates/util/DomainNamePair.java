@@ -1,30 +1,22 @@
 package cyberslas.pathundergates.util;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Objects;
-
-public class DomainNamePair {
-    public String domain;
-    public String name;
-
+public class DomainNamePair extends Pair<String, String> {
     public DomainNamePair(String domain, String name) {
-        this.domain = domain;
-        this.name = name;
+        super(domain, name);
     }
 
     public DomainNamePair(ResourceLocation resource) {
-        this.domain = resource.getNamespace();
-        this.name = resource.getPath();
+        super(resource.getNamespace(), resource.getPath());
     }
 
-    @Override
-    public boolean equals(Object other) {
-        return other instanceof DomainNamePair && ((DomainNamePair) other).domain.equals(this.domain) && ((DomainNamePair) other).name.equals(this.name);
+    public String getDomain() {
+        return this.getFirst();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.domain, this.name);
+    public String getName() {
+        return this.getSecond();
     }
 }
