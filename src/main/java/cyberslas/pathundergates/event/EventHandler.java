@@ -46,6 +46,8 @@ public class EventHandler  {
 
                 if (!level.isClientSide) {
                     level.setBlock(blockpos, blockstate1, 11);
+                    blockstate1.updateNeighbourShapes(level, blockpos, 11 & -34, 511);
+
                     if (player != null) {
                         itemstack.hurtAndBreak(1, player, (p_43122_) -> {
                             p_43122_.broadcastBreakEvent(hand);
