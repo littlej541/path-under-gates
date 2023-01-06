@@ -1,6 +1,6 @@
 package cyberslas.pathundergates.event;
 
-import cyberslas.pathundergates.util.MappedBlocklists;
+import cyberslas.pathundergates.util.ParsedConfig;
 import cyberslas.pathundergates.PathUnderGates;
 import cyberslas.pathundergates.util.Util;
 import net.minecraft.world.InteractionHand;
@@ -24,7 +24,7 @@ import net.minecraftforge.fml.common.Mod;
 public class EventHandler  {
     @SubscribeEvent
     public static void serverStarting(ServerStartingEvent event) {
-        MappedBlocklists.parseConfig();
+        ParsedConfig.parseConfig();
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

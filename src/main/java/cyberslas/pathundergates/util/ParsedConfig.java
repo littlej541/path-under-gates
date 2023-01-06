@@ -18,7 +18,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MappedBlocklists {
+public class ParsedConfig {
     private static Multimap<DomainNamePair, List<String>> whitelistMap = HashMultimap.create();
     private static Multimap<DomainNamePair, List<String>> blacklistMap = HashMultimap.create();
     private static Map<Block, BlockState> blockPathMap = new HashMap<>();
@@ -38,11 +38,11 @@ public class MappedBlocklists {
     }
 
     public static boolean matchesBlockWhitelist(LevelReader worldIn, BlockPos pos) {
-        return matchesBlockMap(worldIn, pos, MappedBlocklists.whitelistMap);
+        return matchesBlockMap(worldIn, pos, ParsedConfig.whitelistMap);
     }
 
     public static boolean matchesBlockBlacklist(LevelReader worldIn, BlockPos pos) {
-        return matchesBlockMap(worldIn, pos, MappedBlocklists.blacklistMap);
+        return matchesBlockMap(worldIn, pos, ParsedConfig.blacklistMap);
     }
 
     private static boolean matchesBlockMap(LevelReader worldIn, BlockPos pos, Multimap<DomainNamePair, List<String>> map) {

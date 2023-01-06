@@ -107,7 +107,7 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
-task processSources(type: Sync) {
+task processSources(type: Copy) {
     from 'src/main/java'
     into "$buildDir/generated-src"
     filter(ReplaceTokens, tokens: [
