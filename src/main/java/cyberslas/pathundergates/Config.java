@@ -13,6 +13,7 @@ public class Config {
     public static class Server {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocksWhitelist;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocksBlacklist;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> blockPathList;
 
         public Server(ForgeConfigSpec.Builder builder) {
             blocksWhitelist = builder
@@ -28,6 +29,15 @@ public class Config {
                             "Each entry must be surrounded by double quotes")
                     .translation(PathUnderGates.MODID + ".config.blocksBlacklist")
                     .defineList("blocksBlacklist", new ArrayList<String>(), __ -> true);
+            blockPathList = builder
+                    .comment("A list of block pairs where the first is the normal block and the second the block it is flattened into with the shovel.",
+                            "The first block can only be a simple block, properties are ignored. The second can be a block with properties attached like the blacklist/whitelist.",
+                            "Blocks pairs are separated by a | character. Cannot use tags or wildcards. Properties not defined are assumed default. Format: modid:name|modid:name:propertyname1=propertyvalue1,propertyname2=propertyvalue2,...",
+                            "Intended for compatibility purposes, but nothing stopping you from going nuts and making shovels turn coal blocks into diamonds.",
+                            "Examples: \"minecraft:granite|minecraft:stone\", \"minecraft:oak_stairs|minecraft:oak_stairs:half=top\", \"minecraft:netherrack|somemod:netherrack_path\"",
+                            "Each entry must be surrounded by double quotes")
+                    .translation(PathUnderGates.MODID + ".config.blockPathPairList")
+                    .defineList("blockPathPairList", new ArrayList<String>(), __ -> true);
         }
     }
 }

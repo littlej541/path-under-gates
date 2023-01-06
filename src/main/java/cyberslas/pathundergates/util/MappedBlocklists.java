@@ -2,9 +2,11 @@ package cyberslas.pathundergates.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.minecraft.world.item.ShovelItem;
 import org.apache.commons.lang3.tuple.Pair;
 import cyberslas.pathundergates.Config;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.tags.BlockTags;
@@ -19,10 +21,20 @@ import java.util.stream.Collectors;
 public class MappedBlocklists {
     private static Multimap<DomainNamePair, List<String>> whitelistMap = HashMultimap.create();
     private static Multimap<DomainNamePair, List<String>> blacklistMap = HashMultimap.create();
+    private static Map<Block, BlockState> blockPathMap = new HashMap<>();
+    private static Map<Block, BlockState> CACHEDFLATTENABLES;
 
     public static void parseConfig() {
+        if (CACHEDFLATTENABLES == null) {
+            CACHEDFLATTENABLES = new HashMap<>(ShovelItem.FLATTENABLES);
+        } else {
+            ShovelItem.FLATTENABLES.clear();
+            ShovelItem.FLATTENABLES.putAll(CACHEDFLATTENABLES);
+        }
         whitelistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksWhitelist.get());
         blacklistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksBlacklist.get());
+        blockPathMap = ConfigParser.processBlockPathPairListIntoMap(Config.SERVER.blockPathList.get());
+        ShovelItem.FLATTENABLES.putAll(blockPathMap);
     }
 
     public static boolean matchesBlockWhitelist(LevelReader worldIn, BlockPos pos) {
@@ -77,6 +89,8 @@ public class MappedBlocklists {
         private static final String DOMAINSEPARATOR = ":";
         private static final String PROPERTYSEPARATOR = ",";
         private static final String PROPERTYKEYVALUESEPARATOR = "=";
+        private static final String PAIRSEPARATOR = "\\|";
+        private static final Block BADBLOCK = Blocks.AIR;
 
         private static Multimap<DomainNamePair, List<String>> processListIntoMap(List<? extends String> list) {
             Multimap<DomainNamePair, List<String>> multimap = HashMultimap.create();
@@ -126,6 +140,63 @@ public class MappedBlocklists {
             }
 
             return multimap;
+        }
+
+        private static Map<Block, BlockState> processBlockPathPairListIntoMap(List<? extends String> list) {
+            Map<Block, BlockState> map = new HashMap<>();
+
+            for(String pair : list) {
+                String[] splitPair = pair.split(PAIRSEPARATOR);
+
+                map.put(blockStateEntryToBlock(splitAtDomainSeparator(splitPair[0])),
+                        blockStateEntryToBlockstate(splitAtDomainSeparator(splitPair[1])));
+            }
+
+            return map;
+        }
+
+        private static Block blockStateEntryToBlock(Pair<String, String> entry) {
+            Pair<String, String> blockNameAndState = splitAtDomainSeparator(entry.getRight());
+            String domain = entry.getLeft();
+            String name = blockNameAndState.getLeft();
+
+            Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(domain, name));
+            if (block == null) {
+                block = BADBLOCK;
+            }
+
+            return  block;
+        }
+
+        private static BlockState blockStateEntryToBlockstate(Pair<String, String> entry) {
+            Block block = blockStateEntryToBlock(entry);
+
+            String state = splitAtDomainSeparator(entry.getRight()).getRight();
+            List<String> propertiesList = processStateIntoPropertiesList(state);
+
+            BlockState blockState = block.defaultBlockState();
+            if (!propertiesList.get(0).contains(PROPERTYKEYVALUESEPARATOR)) {
+                return blockState;
+            } else {
+                Map<String, String> propertyMap = propertiesList.stream().map(input -> input.split(PROPERTYKEYVALUESEPARATOR)).collect(Collectors.toMap(v -> v[0], v -> v[1]));
+
+                for (Property<?> blockStateProperty : blockState.getProperties()) {
+                    if (propertyMap.containsKey(blockStateProperty.getName())) {
+                        blockState = newBlockStateWithProperty(blockState, blockStateProperty, propertyMap.get(blockStateProperty.getName()));
+                    }
+                }
+            }
+
+            return blockState;
+        }
+
+        private static <T extends Comparable<T>> BlockState newBlockStateWithProperty(BlockState state, Property<T> property, String stringValue) {
+            Optional<T> value = property.getValue(stringValue);
+            if (value.isPresent()) {
+                return state.setValue(property, value.get());
+            }
+
+            return state;
         }
 
         private static Pair<String, String> splitAtDomainSeparator(String entry) {
