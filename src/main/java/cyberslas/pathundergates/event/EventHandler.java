@@ -41,12 +41,13 @@ public class EventHandler  {
             BlockState blockstate = level.getBlockState(blockpos);
             BlockState blockstate1 = blockstate.getBlock().getToolModifiedState(blockstate, context, net.minecraftforge.common.ToolActions.SHOVEL_FLATTEN, true);
             if (blockstate1 != null && clickedFace != Direction.DOWN && Util.blockAllowsPathBelow(level, blockpos.above())) {
-                level.playSound(player, blockpos, SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
-                player.swing(hand);
 
                 if (!level.isClientSide) {
                     level.setBlock(blockpos, blockstate1, 11);
                     blockstate1.updateNeighbourShapes(level, blockpos, 11 & -34, 511);
+
+                    player.swing(hand, true);
+                    level.playSound(player, blockpos.getX(), blockpos.getY(), blockpos.getZ(), SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
 
                     if (player != null) {
                         itemstack.hurtAndBreak(1, player, (p_43122_) -> {
