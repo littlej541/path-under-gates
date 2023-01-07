@@ -2,7 +2,10 @@ package cyberslas.pathundergates.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import cpw.mods.modlauncher.api.INameMappingService;
+import cyberslas.pathundergates.PathUnderGates;
 import net.minecraft.world.item.ShovelItem;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import org.apache.commons.lang3.tuple.Pair;
 import cyberslas.pathundergates.Config;
 import net.minecraft.world.level.block.Block;
@@ -15,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,19 +26,30 @@ public class ParsedConfig {
     private static Multimap<DomainNamePair, List<String>> whitelistMap = HashMultimap.create();
     private static Multimap<DomainNamePair, List<String>> blacklistMap = HashMultimap.create();
     private static Map<Block, BlockState> blockPathMap = new HashMap<>();
-    private static Map<Block, BlockState> CACHEDFLATTENABLES;
+    private static final String FLATTENABLESFIELDSRG = "f_43110_";
+
+    private final static Map<Block, BlockState> CACHEDFLATTENABLES;
+    private final static Map<Block, BlockState> FLATTENABLESFIELD;
+    static {
+        Field field = ObfuscationReflectionHelper.findField(ShovelItem.class, FLATTENABLESFIELDSRG);
+        Map<Block, BlockState> temp = new HashMap<>();
+        try {
+            temp = (Map<Block, BlockState>)field.get(null);
+        } catch(Exception e) {
+            PathUnderGates.logger.error("Failed to reflect field " + ObfuscationReflectionHelper.remapName(INameMappingService.Domain.FIELD, FLATTENABLESFIELDSRG) + ", options defined in blockPathPairList will not work");
+        }
+        FLATTENABLESFIELD = temp;
+        CACHEDFLATTENABLES = new HashMap<>(FLATTENABLESFIELD);
+    }
 
     public static void parseConfig() {
-        if (CACHEDFLATTENABLES == null) {
-            CACHEDFLATTENABLES = new HashMap<>(ShovelItem.FLATTENABLES);
-        } else {
-            ShovelItem.FLATTENABLES.clear();
-            ShovelItem.FLATTENABLES.putAll(CACHEDFLATTENABLES);
-        }
+        FLATTENABLESFIELD.clear();
+        FLATTENABLESFIELD.putAll(CACHEDFLATTENABLES);
+
         whitelistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksWhitelist.get());
         blacklistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksBlacklist.get());
         blockPathMap = ConfigParser.processBlockPathPairListIntoMap(Config.SERVER.blockPathList.get());
-        ShovelItem.FLATTENABLES.putAll(blockPathMap);
+        FLATTENABLESFIELD.putAll(blockPathMap);
     }
 
     public static boolean matchesBlockWhitelist(LevelReader worldIn, BlockPos pos) {
@@ -51,11 +66,7 @@ public class ParsedConfig {
 
         if (!map.containsKey(blockDomainNamePair)) {
             blockDomainNamePair = new DomainNamePair(blockDomainNamePair.getDomain(), ConfigParser.WILDCARD);
-            if (!map.containsKey(blockDomainNamePair)) {
-                return false;
-            } else {
-                return true;
-            }
+            return map.containsKey(blockDomainNamePair);
         }
 
         for (List<String> propertyList : map.get(blockDomainNamePair)) {
@@ -110,7 +121,7 @@ public class ParsedConfig {
 
                 if (state.equals(WILDCARD)) {
                     List<String> domainsToCheck;
-                    Set<Block> blockSet = new HashSet();
+                    Set<Block> blockSet = new HashSet<>();
 
                     if (domain.equals(OREDOMAIN)) {
                         domainsToCheck = DEFAULTTAGDOMAINS;
