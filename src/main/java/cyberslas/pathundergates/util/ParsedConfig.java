@@ -6,7 +6,7 @@ import cpw.mods.modlauncher.api.INameMappingService;
 import cyberslas.pathundergates.PathUnderGates;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import cyberslas.pathundergates.Config;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,6 +26,7 @@ public class ParsedConfig {
     private static Multimap<DomainNamePair, List<String>> whitelistMap = HashMultimap.create();
     private static Multimap<DomainNamePair, List<String>> blacklistMap = HashMultimap.create();
     private static Map<Block, BlockState> blockPathMap = new HashMap<>();
+    private static Map<Block, BlockState> modAddedBlockPathMap = new HashMap<>();
     private static final String FLATTENABLESFIELDSRG = "f_43110_";
 
     private final static Map<Block, BlockState> CACHEDFLATTENABLES;
@@ -42,6 +43,10 @@ public class ParsedConfig {
         CACHEDFLATTENABLES = new HashMap<>(FLATTENABLESFIELD);
     }
 
+    public static void addBlockPathMapping(Block block, BlockState blockState) {
+        modAddedBlockPathMap.put(block, blockState);
+    }
+
     public static void parseConfig() {
         FLATTENABLESFIELD.clear();
         FLATTENABLESFIELD.putAll(CACHEDFLATTENABLES);
@@ -49,6 +54,7 @@ public class ParsedConfig {
         whitelistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksWhitelist.get());
         blacklistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksBlacklist.get());
         blockPathMap = ConfigParser.processBlockPathPairListIntoMap(Config.SERVER.blockPathList.get());
+        blockPathMap.putAll(modAddedBlockPathMap);
         FLATTENABLESFIELD.putAll(blockPathMap);
     }
 
@@ -107,8 +113,8 @@ public class ParsedConfig {
             Multimap<DomainNamePair, List<String>> multimap = HashMultimap.create();
 
             for(String registryName : list) {
-                Pair<String, String> domainAndBlockState = splitAtDomainSeparator(registryName);
-                Pair<String, String> blockNameAndState = splitAtDomainSeparator(domainAndBlockState.getRight());
+                ImmutablePair<String, String> domainAndBlockState = splitAtDomainSeparator(registryName);
+                ImmutablePair<String, String> blockNameAndState = splitAtDomainSeparator(domainAndBlockState.getRight());
                 String domain = domainAndBlockState.getLeft();
                 String name = blockNameAndState.getLeft();
                 String state = blockNameAndState.getRight();
@@ -166,8 +172,8 @@ public class ParsedConfig {
             return map;
         }
 
-        private static Block blockStateEntryToBlock(Pair<String, String> entry) {
-            Pair<String, String> blockNameAndState = splitAtDomainSeparator(entry.getRight());
+        private static Block blockStateEntryToBlock(ImmutablePair<String, String> entry) {
+            ImmutablePair<String, String> blockNameAndState = splitAtDomainSeparator(entry.getRight());
             String domain = entry.getLeft();
             String name = blockNameAndState.getLeft();
 
@@ -179,7 +185,7 @@ public class ParsedConfig {
             return  block;
         }
 
-        private static BlockState blockStateEntryToBlockstate(Pair<String, String> entry) {
+        private static BlockState blockStateEntryToBlockstate(ImmutablePair<String, String> entry) {
             Block block = blockStateEntryToBlock(entry);
 
             String state = splitAtDomainSeparator(entry.getRight()).getRight();
@@ -210,14 +216,14 @@ public class ParsedConfig {
             return state;
         }
 
-        private static Pair<String, String> splitAtDomainSeparator(String entry) {
+        private static ImmutablePair<String, String> splitAtDomainSeparator(String entry) {
             String[] splitPair = entry.split(DOMAINSEPARATOR, 2);
 
             if (splitPair.length == 1) {
-                return Pair.of(splitPair[0], WILDCARD);
+                return ImmutablePair.of(splitPair[0], WILDCARD);
             }
 
-            return Pair.of(splitPair[0], splitPair[1]);
+            return ImmutablePair.of(splitPair[0], splitPair[1]);
         }
 
         private static List<String> processStateIntoPropertiesList(String properties) {
