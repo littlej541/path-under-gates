@@ -49,11 +49,8 @@ public class EventHandler  {
                     player.swing(hand, true);
                     level.playSound(player, blockpos.getX(), blockpos.getY(), blockpos.getZ(), SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
 
-                    if (player != null) {
-                        itemstack.hurtAndBreak(1, player, (p_43122_) -> {
-                            p_43122_.broadcastBreakEvent(hand);
-                        });
-                    }
+
+                    itemstack.hurtAndBreak(1, player, (p_43122_) -> p_43122_.broadcastBreakEvent(hand));
                 }
             }
         }

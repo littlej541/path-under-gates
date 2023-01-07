@@ -25,8 +25,7 @@ import java.util.stream.Collectors;
 public class ParsedConfig {
     private static Multimap<DomainNamePair, List<String>> whitelistMap = HashMultimap.create();
     private static Multimap<DomainNamePair, List<String>> blacklistMap = HashMultimap.create();
-    private static Map<Block, BlockState> blockPathMap = new HashMap<>();
-    private static Map<Block, BlockState> modAddedBlockPathMap = new HashMap<>();
+    private static final Map<Block, BlockState> modAddedBlockPathMap = new HashMap<>();
     private static final String FLATTENABLESFIELDSRG = "f_43110_";
 
     private final static Map<Block, BlockState> CACHEDFLATTENABLES;
@@ -53,7 +52,7 @@ public class ParsedConfig {
 
         whitelistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksWhitelist.get());
         blacklistMap = ConfigParser.processListIntoMap(Config.SERVER.blocksBlacklist.get());
-        blockPathMap = ConfigParser.processBlockPathPairListIntoMap(Config.SERVER.blockPathList.get());
+        Map<Block, BlockState> blockPathMap = ConfigParser.processBlockPathPairListIntoMap(Config.SERVER.blockPathList.get());
         blockPathMap.putAll(modAddedBlockPathMap);
         FLATTENABLESFIELD.putAll(blockPathMap);
     }
@@ -108,6 +107,7 @@ public class ParsedConfig {
         private static final String PROPERTYKEYVALUESEPARATOR = "=";
         private static final String PAIRSEPARATOR = "\\|";
         private static final Block BADBLOCK = Blocks.AIR;
+        private static final BlockState BADBLOCKSTATE = BADBLOCK.defaultBlockState();
 
         private static Multimap<DomainNamePair, List<String>> processListIntoMap(List<? extends String> list) {
             Multimap<DomainNamePair, List<String>> multimap = HashMultimap.create();
@@ -133,7 +133,7 @@ public class ParsedConfig {
                         domainsToCheck = DEFAULTTAGDOMAINS;
                         tagHint = true;
                     } else {
-                        domainsToCheck = Arrays.asList(domain);
+                        domainsToCheck = Collections.singletonList(domain);
                     }
 
                     domainsToCheck
@@ -165,8 +165,16 @@ public class ParsedConfig {
             for(String pair : list) {
                 String[] splitPair = pair.split(PAIRSEPARATOR);
 
-                map.put(blockStateEntryToBlock(splitAtDomainSeparator(splitPair[0])),
-                        blockStateEntryToBlockstate(splitAtDomainSeparator(splitPair[1])));
+                Block block = blockStateEntryToBlock(splitAtDomainSeparator(splitPair[0]));
+                if (block.equals(BADBLOCK)) {
+                    continue;
+                }
+                BlockState blockState = blockStateEntryToBlockstate(splitAtDomainSeparator(splitPair[1]));
+                if (blockState.equals(BADBLOCKSTATE)) {
+                    continue;
+                }
+
+                map.put(block, blockState);
             }
 
             return map;
@@ -187,6 +195,10 @@ public class ParsedConfig {
 
         private static BlockState blockStateEntryToBlockstate(ImmutablePair<String, String> entry) {
             Block block = blockStateEntryToBlock(entry);
+
+            if (block.equals(BADBLOCK)) {
+                return BADBLOCKSTATE;
+            }
 
             String state = splitAtDomainSeparator(entry.getRight()).getRight();
             List<String> propertiesList = processStateIntoPropertiesList(state);
@@ -209,11 +221,8 @@ public class ParsedConfig {
 
         private static <T extends Comparable<T>> BlockState newBlockStateWithProperty(BlockState state, Property<T> property, String stringValue) {
             Optional<T> value = property.getValue(stringValue);
-            if (value.isPresent()) {
-                return state.setValue(property, value.get());
-            }
+            return value.map(t -> state.setValue(property, t)).orElse(state);
 
-            return state;
         }
 
         private static ImmutablePair<String, String> splitAtDomainSeparator(String entry) {
