@@ -29,4 +29,35 @@ Example entries include:
 - `"ore:fences/wooden"` — all blocks under the `fences/wooden` Forge tag
 - `"minecraft:logs"` — all blocks under the `logs` vanilla tag (this is a tag, though it looks like a block)
 
-**Final Note:** If you still need more help with blocks, see the [CraftTweaker](https://www.curseforge.com/minecraft/mc-mods/crafttweaker) wiki for version 1.12. The formatting is almost a one-to-one mapping of Bracket Handlers from that mod.
+## New Feature: Modded Path Compatilibility
+
+When a block is right-clicked with a shovel, a piece of code runs that determines if it can be flattened into a path. This code checks if the block is not underneath something and if the block has a possible conversion to a path. This mod works by preempting that code and doing the check and conversion itself. With mod added paths, there is an issue with the "possible conversion" part. Vanilla blocks have this information stored in a known location, but mod added blocks can have it anywhere. For this mod to perform the conversion, it needs to know what it should be. With that in mind, this mod now has the ability to receive that information. This comes in 2 flavors:
+
+### Config File
+
+Formatting is similar to whitelisting/blacklisting. It is of the form:
+
+`modid:name|modid:name:properties`
+
+The first option is the same format but does not allow for properties to be specified. The second does however, just like the list formatting. Any unspecified properties are assumed default. The major differences between the list format and these is that it is presented as a pair separated by a `|` and that tags/wildcards are **NOT** allowed. This config setting can be abused by the server owner to do unintended things, like turn blocks of coal into blocks of diamond, but surely none are so debauched.
+
+Exaple entries include:
+
+- `minecraft:snow_block|morepaths:snow_path` - Snow block will be flattened into snow path block from `morepath` mod
+- `undergarden:deepsoil|ugpaths:deepsoil_path` - Deepsoil block from mod `undergarden` will be flattened into deepsoil ath block from `ugpaths`
+- `minecraft:stone|minecraft:stone_slab:type=top` - Stone block will be flattened into top-half stone slab block
+- `minecraft:coal_block|minecraft:diamond_block` - Coal block will be "flattened" into diamond block, though none would ever do this
+
+### InterModComms
+
+Mod authors will now be able to tell this mod what a block should turn into when trying to be flattened with a shovel. This involves the use of the `InterModComms` feature provided by Forge.
+
+Messages sent to to this mod will be processed into a `Block`-`BlockState` pair. This is done by sending a a message with `"registerpath"` as its method and an `Object[]` of length 2 containing a `Block` object in the first position and a `BlockState` object in the second. Examples are as follows:
+
+    private void sendComms(InterModEnqueueEvent event) {
+        // Register stone blocks to slabs conversion when flattening with shovel
+        InterModComms.sendTo("pathundergates", "registerpath", () -> new Object[]{Blocks.STONE, Blocks.STONE_SLAB.defaultBlockState()});
+        InterModComms.sendTo("pathundergates", "registerpath", () -> new Object[]{Blocks.ANDESITE, Blocks.ANDESITE_SLAB.defaultBlockState()});
+        InterModComms.sendTo("pathundergates", "registerpath", () -> new Object[]{Blocks.DIORITE, Blocks.DIORITE_SLAB.defaultBlockState()});
+        InterModComms.sendTo("pathundergates", "registerpath", () -> new Object[]{Blocks.GRANITE, Blocks.GRANITE_SLAB.defaultBlockState()});
+    }
