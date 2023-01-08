@@ -14,8 +14,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.lang.reflect.Field;
@@ -57,16 +55,15 @@ public class ParsedConfig {
         FLATTENABLESFIELD.putAll(blockPathMap);
     }
 
-    public static boolean matchesBlockWhitelist(LevelReader worldIn, BlockPos pos) {
-        return matchesBlockMap(worldIn, pos, ParsedConfig.whitelistMap);
+    public static boolean matchesBlockWhitelist(BlockState blockState) {
+        return matchesBlockMap(blockState, whitelistMap);
     }
 
-    public static boolean matchesBlockBlacklist(LevelReader worldIn, BlockPos pos) {
-        return matchesBlockMap(worldIn, pos, ParsedConfig.blacklistMap);
+    public static boolean matchesBlockBlacklist(BlockState blockState) {
+        return matchesBlockMap(blockState, blacklistMap);
     }
 
-    private static boolean matchesBlockMap(LevelReader worldIn, BlockPos pos, Multimap<DomainNamePair, List<String>> map) {
-        BlockState blockState = worldIn.getBlockState(pos);
+    private static boolean matchesBlockMap(BlockState blockState, Multimap<DomainNamePair, List<String>> map) {
         DomainNamePair blockDomainNamePair = new DomainNamePair(blockState.getBlock().getRegistryName());
 
         if (!map.containsKey(blockDomainNamePair)) {
