@@ -64,7 +64,7 @@ public class ParsedConfig {
     }
 
     private static boolean matchesBlockMap(BlockState blockState, Multimap<DomainNamePair, List<String>> map) {
-        DomainNamePair blockDomainNamePair = new DomainNamePair(blockState.getBlock().getRegistryName());
+        DomainNamePair blockDomainNamePair = new DomainNamePair(ForgeRegistries.BLOCKS.getKey(blockState.getBlock()));
 
         if (!map.containsKey(blockDomainNamePair)) {
             blockDomainNamePair = new DomainNamePair(blockDomainNamePair.getDomain(), ConfigParser.WILDCARD);
@@ -140,7 +140,7 @@ public class ParsedConfig {
 
                     if (blockSet.size() > 0) {
                         for (Block block : blockSet) {
-                            multimap.put(new DomainNamePair(block.getRegistryName()), Collections.singletonList(state));
+                            multimap.put(new DomainNamePair(ForgeRegistries.BLOCKS.getKey(block)), Collections.singletonList(state));
                         }
                     } else if (!tagHint) {
                         multimap.put(new DomainNamePair(domain, name), Collections.singletonList(state));
