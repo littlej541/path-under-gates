@@ -24,6 +24,6 @@ issueTrackerURL="@issues@"
 [[dependencies.@modid@]]
     modId="minecraft"
     mandatory=true
-    versionRange="[@mc_version@]"
+    versionRange="@mc_version_range@"
     ordering="NONE"
     side="BOTH"

@@ -124,7 +124,8 @@ processResources {
                 "mod_description": mod_description.toString(),
                 "license": license.toString(),
                 "forge_version_short": forge_version_short.toString(),
-                "mc_version": mc_version.toString()
+                "mc_version": mc_version.toString(),
+                "mc_version_range": mc_version_range.toString()
         ])
     }
 }
