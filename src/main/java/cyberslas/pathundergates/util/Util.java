@@ -8,6 +8,6 @@ import net.minecraft.world.level.LevelReader;
 public class Util {
     public static boolean blockAllowsPathBelow(LevelReader worldIn, BlockPos pos) {
         BlockState blockstate = worldIn.getBlockState(pos);
-        return !ParsedConfig.matchesBlockBlacklist(blockstate) && (!blockstate.getMaterial().isSolid() || blockstate.getBlock() instanceof FenceGateBlock || ParsedConfig.matchesBlockWhitelist(blockstate));
+        return !ParsedConfig.matchesBlockBlacklist(blockstate) && (!blockstate.isSolid() || blockstate.getBlock() instanceof FenceGateBlock || ParsedConfig.matchesBlockWhitelist(blockstate));
     }
 }
