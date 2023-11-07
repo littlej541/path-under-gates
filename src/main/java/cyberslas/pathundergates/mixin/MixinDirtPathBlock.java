@@ -1,6 +1,7 @@
 package cyberslas.pathundergates.mixin;
 
 import cyberslas.pathundergates.util.Util;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.DirtPathBlock;
 import net.minecraft.core.BlockPos;
@@ -13,8 +14,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Random;
-
 @Mixin(DirtPathBlock.class)
 public abstract class MixinDirtPathBlock {
     @Inject(at = @At("HEAD"), method = "canSurvive", cancellable = true)
@@ -25,7 +24,7 @@ public abstract class MixinDirtPathBlock {
     }
 
     @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
-    private void onTick(BlockState state, ServerLevel worldIn, BlockPos pos, Random rand, CallbackInfo callback) {
+    private void onTick(BlockState state, ServerLevel worldIn, BlockPos pos, RandomSource rand, CallbackInfo callback) {
         if (this.canSurvive(state, worldIn, pos)) {
             callback.cancel();
         }
