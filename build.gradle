@@ -117,6 +117,7 @@ processResources {
                 "modname": modname.toString(),
                 "modid": modid.toString(),
                 "authors": authors.toString(),
+                "credits": credits.toString(),
                 "logofile": logofile.toString(),
                 "url": url.toString(),
                 "issues": issues.toString(),

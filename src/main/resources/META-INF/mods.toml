@@ -10,6 +10,7 @@ issueTrackerURL="@issues@"
 	displayURL="@url@"
 	logoFile="@logofile@"
 	authors="@authors@"
+    credits="@credits@"
     displayTest="IGNORE_SERVER_VERSION"
 	description='''@mod_description@'''
 
